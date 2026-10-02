@@ -16,8 +16,15 @@ service cloud.firestore {
     }
     function isDelete() { return request.resource == null; }
     function smallStr(v, n) { return v is string && v.size() <= n; }
+    function jpeg(v, n) { return smallStr(v, n) && v.matches('data:image/jpeg;base64,.*'); }
 
     match /matches/{matchId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Maç başlama saatleri: tahmin oyununda maç başladıktan sonra tahmin değiştirilemesin diye
+    match /kickoffs/{matchId} {
       allow read: if true;
       allow write: if isAdmin();
     }
@@ -39,21 +46,17 @@ service cloud.firestore {
       allow delete: if isAdmin() || isManagerOf(resource.data.team);
     }
 
-    // Oyuncu fotoğrafları (küçültülmüş JPEG, data URL)
     match /photos/{playerId} {
       allow read: if true;
-      allow create, update: if smallStr(request.resource.data.data, 150000)
-        && request.resource.data.data.matches('data:image/jpeg;base64,.*')
+      allow create, update: if jpeg(request.resource.data.data, 150000)
         && (isAdmin() || (isManagerOf(request.resource.data.team)
                           && (resource == null || resource.data.team == request.resource.data.team)));
       allow delete: if isAdmin() || isManagerOf(resource.data.team);
     }
 
-    // Takım logoları
     match /logos/{teamId} {
       allow read: if true;
-      allow create, update: if smallStr(request.resource.data.data, 150000)
-        && request.resource.data.data.matches('data:image/jpeg;base64,.*')
+      allow create, update: if jpeg(request.resource.data.data, 150000)
         && (isAdmin() || isManagerOf(request.resource.data.team));
       allow delete: if isAdmin() || isManagerOf(resource.data.team);
     }
@@ -65,6 +68,16 @@ service cloud.firestore {
             && (resource == null || resource.data.team == request.resource.data.team));
     }
 
+    // Maç kadroları: belge kimliği "<maçId>__<takım adı>"
+    match /lineups/{lineupId} {
+      allow read: if true;
+      allow create, update: if (isAdmin() || isManagerOf(request.resource.data.team))
+        && lineupId == request.resource.data.match + '__' + request.resource.data.team
+        && request.resource.data.start is list && request.resource.data.start.size() <= 16
+        && request.resource.data.subs is list && request.resource.data.subs.size() <= 20;
+      allow delete: if isAdmin() || isManagerOf(resource.data.team);
+    }
+
     match /news/{newsId} {
       allow read: if true;
       allow write: if isAdmin()
@@ -73,13 +86,69 @@ service cloud.firestore {
                 && smallStr(request.resource.data.body, 3000)));
     }
 
-    // Onaylanmış takım hesapları: kim hangi takımı yönetiyor
+    match /weekly/{tur} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{key} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /sponsors/{sid} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && (isDelete() || (smallStr(request.resource.data.name, 80)
+            && (request.resource.data.get('logo', '') == '' || jpeg(request.resource.data.logo, 150000))));
+    }
+
+    // Galeri: küçük resim listesi ve tam boy görseller ayrı tutulur
+    match /gallery/{gid} {
+      allow read: if true;
+      allow write: if isAdmin() && (isDelete() || jpeg(request.resource.data.thumb, 60000));
+    }
+    match /galleryFull/{gid} {
+      allow read: if true;
+      allow write: if isAdmin() && (isDelete() || jpeg(request.resource.data.data, 900000));
+    }
+
+    // Taraftar oylaması: belge kimliği "<maçId>__<uid>", sadece biten maçlar için
+    match /mvpvotes/{vid} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && vid == request.resource.data.match + '__' + request.auth.uid
+        && request.resource.data.player is string
+        && get(/databases/$(database)/documents/matches/$(request.resource.data.match)).data.get('status', '') == 'done';
+      allow delete: if isAdmin();
+    }
+
+    // Tahmin oyunu: her taraftarın tek belgesi; her yazışta en fazla bir maçın tahmini değişebilir
+    // ve o maç henüz başlamamış olmalı.
+    match /fans/{uid} {
+      allow read: if true;
+      function validFan() {
+        return smallStr(request.resource.data.nick, 24) && request.resource.data.nick.size() >= 2
+          && request.resource.data.p is map && request.resource.data.p.size() <= 130;
+      }
+      function beforeKickoff(mid) {
+        return request.time < get(/databases/$(database)/documents/kickoffs/$(mid)).data.at;
+      }
+      allow create: if signedIn() && request.auth.uid == uid && validFan()
+        && (request.resource.data.p.size() == 0
+            || (request.resource.data.p.size() == 1 && beforeKickoff(request.resource.data.p.keys()[0])));
+      allow update: if signedIn() && request.auth.uid == uid && validFan()
+        && (request.resource.data.p.diff(resource.data.p).affectedKeys().size() == 0
+            || (request.resource.data.p.diff(resource.data.p).affectedKeys().size() == 1
+                && beforeKickoff(request.resource.data.p.diff(resource.data.p).affectedKeys().toList()[0])));
+      allow delete: if isAdmin();
+    }
+
     match /managers/{uid} {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
       allow write: if isAdmin();
     }
 
-    // Takım hesabı başvuruları
     match /requests/{uid} {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
       allow create, update: if signedIn() && request.auth.uid == uid

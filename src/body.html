@@ -1,7 +1,8 @@
 <div lang="tr">
+<a class="skip" href="#view">İçeriğe geç</a>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#ana">
+    <a class="brand" href="/">
       <svg width="34" height="38" viewBox="0 0 34 38" aria-hidden="true">
         <path d="M5 36V14l3-3V6h3v3h3V6h6v3h3V6h3v5l3 3v22z" fill="var(--accent)"/>
         <path d="M14 36v-7a3 3 0 0 1 6 0v7z" fill="var(--bg)"/>
@@ -10,347 +11,263 @@
       </svg>
       <span><b>Mahalle Ligi</b><small>Alanya Belediyesi · 2026</small></span>
     </a>
-    <nav class="links" aria-label="Bölümler">
-      <a href="#gundem">Gündem</a><a href="#gruplar">Gruplar</a><a href="#fikstur">Fikstür</a><a href="#istatistik">İstatistik</a><a href="#takimlar">Takımlar</a><a href="#final">Final Yolu</a><a href="#duyurular">Duyurular</a><a href="#bilgi">Bilgi</a>
+    <nav class="links" aria-label="Sayfalar">
+      <a href="/fikstur">Fikstür</a><a href="/gruplar">Gruplar</a><a href="/istatistik">İstatistik</a><a href="/takimlar">Takımlar</a><a href="/final">Final</a><a href="/tahmin">Tahmin</a><a href="/haftanin">Haftanın</a><a href="/galeri">Galeri</a><a href="/disiplin">Disiplin</a><a href="/duyurular">Duyurular</a><a href="/bilgi">Bilgi</a>
     </nav>
     <button type="button" class="iconBtn" id="themeBtn" aria-label="Tema: sistem" title="Tema"></button>
     <button type="button" class="adminBtn" id="adminBtn"><i></i><span id="adminBtnLbl">Giriş</span><em class="cnt" id="reqCount" hidden></em></button>
   </div>
 </header>
 
-<main id="ana">
-  <div class="wrap" id="gateWrap" hidden>
-    <div class="gate" id="gate"></div>
+<main id="view" tabindex="-1"></main>
+
+<section class="admin" id="yonetim" hidden>
+  <div class="wrap">
+    <div class="sec-head" style="margin-bottom:0">
+      <div><div class="eyebrow" id="panelEyebrow">Yönetim paneli</div><h1 class="ptitle" id="panelTitle">Lig yönetimi</h1>
+        <p>Kaydettiğiniz her bilgi sitede anında, herkes için güncellenir.</p></div>
+      <div class="row"><button type="button" class="btn ghost" id="adminLogout">Çıkış yap</button><a class="btn ghost" href="/">Siteye dön</a></div>
+    </div>
+    <div class="atabs" role="group" aria-label="Yönetim bölümleri">
+      <button type="button" data-atab="maclar" aria-pressed="true">Maçlar</button>
+      <button type="button" data-atab="kadrolar" aria-pressed="false">Maç kadroları</button>
+      <button type="button" data-atab="oyuncular" aria-pressed="false">Oyuncular</button>
+      <button type="button" data-atab="takimbilgi" aria-pressed="false">Takım bilgileri</button>
+      <button type="button" data-atab="duyurular" aria-pressed="false">Duyurular</button>
+      <button type="button" data-atab="haftanin" aria-pressed="false">Haftanın</button>
+      <button type="button" data-atab="galeri" aria-pressed="false">Galeri</button>
+      <button type="button" data-atab="sponsorlar" aria-pressed="false">Sponsorlar</button>
+      <button type="button" data-atab="hesaplar" aria-pressed="false">Takım hesapları <em class="cnt" id="reqCount2" hidden></em></button>
+      <button type="button" data-atab="ayarlar" aria-pressed="false">Ayarlar</button>
+    </div>
+
+    <div class="admin-grid" data-apane="maclar">
+      <div class="pane">
+        <h3>Maç sonucu</h3>
+        <label class="fld"><span>Maç</span><select id="aMatch"></select></label>
+        <div class="row" id="koTeams" hidden>
+          <label class="fld"><span>Ev sahibi</span><select id="aKoH"></select></label>
+          <label class="fld"><span>Deplasman</span><select id="aKoA"></select></label>
+        </div>
+        <div class="row">
+          <label class="fld"><span>Durum</span>
+            <select id="aStatus"><option value="">Oynanmadı</option><option value="live">Canlı (devam ediyor)</option><option value="done">Bitti</option><option value="post">Ertelendi</option></select></label>
+          <label class="fld sm" id="aMinWrap"><span>Dakika</span><input id="aMinute" type="number" min="1" max="130" inputmode="numeric"></label>
+        </div>
+        <div class="scoreIn">
+          <span class="tn" id="aHName">—</span>
+          <input id="aHs" type="number" min="0" max="99" inputmode="numeric" aria-label="Ev sahibi gol">
+          <span class="muted">–</span>
+          <input id="aAs" type="number" min="0" max="99" inputmode="numeric" aria-label="Deplasman gol">
+          <span class="tn" id="aAName">—</span>
+        </div>
+        <label class="fld" id="penWrap" hidden><span>Beraberlikte penaltılarla kazanan</span><select id="aPen"></select></label>
+        <div>
+          <div class="fld" style="margin-bottom:6px"><span>Maç olayları</span></div>
+          <ul class="evlist" id="aEvList"></ul>
+        </div>
+        <div class="row">
+          <label class="fld" style="flex:1 1 120px"><span>Olay</span>
+            <select id="eType"><option value="G">Gol</option><option value="OG">Kendi kalesine</option><option value="Y">Sarı kart</option><option value="R">Kırmızı kart</option></select></label>
+          <label class="fld" style="flex:1 1 130px"><span>Takım</span><select id="eSide"></select></label>
+          <label class="fld sm"><span>Dakika</span><input id="eMin" type="number" min="1" max="130" inputmode="numeric"></label>
+        </div>
+        <div class="row">
+          <label class="fld"><span>Oyuncu</span><select id="ePl"></select></label>
+          <label class="fld" id="eAsWrap"><span>Asist</span><select id="eAs"></select></label>
+          <button type="button" class="btn ghost" id="eAdd">Olayı ekle</button>
+        </div>
+        <p class="hint" id="aHint"></p>
+        <div class="row">
+          <button type="button" class="btn" id="aSave">Kaydet</button>
+          <button type="button" class="btn ghost" id="aCalc">Skoru gollerden hesapla</button>
+          <button type="button" class="btn warn" id="aClear">Maç bilgisini sil</button>
+        </div>
+      </div>
+      <div class="pane">
+        <h3>Maç detayları</h3>
+        <label class="fld"><span>Maçın oyuncusu (resmi)</span><select id="aMvp"></select></label>
+        <label class="fld"><span>Saha</span><input id="aVenue" type="text" maxlength="80" autocomplete="off" placeholder="Örn. Alanya Oba Sahası"></label>
+        <label class="fld"><span>Hakem</span><input id="aRef" type="text" maxlength="80" autocomplete="off"></label>
+        <label class="fld"><span>Maç videosu (YouTube bağlantısı)</span><input id="aVideo" type="url" maxlength="300" autocomplete="off" placeholder="https://www.youtube.com/watch?v=…"></label>
+        <label class="fld"><span>Maç notu</span><textarea id="aNote" maxlength="600" placeholder="Örn. Maç yağmur nedeniyle 15 dakika geç başladı."></textarea></label>
+        <p class="hint">Bu alanlar maç sayfasında görünür. Hepsi isteğe bağlıdır; kaydetmek için soldaki Kaydet düğmesini kullanın.</p>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="kadrolar" hidden>
+      <div class="pane">
+        <h3>Maç kadrosu</h3>
+        <label class="fld"><span>Maç</span><select id="lMatch"></select></label>
+        <label class="fld"><span>Takım</span><select id="lTeam"></select></label>
+        <p class="hint" id="lCount"></p>
+        <ul class="lpick" id="lList"></ul>
+        <div class="row"><button type="button" class="btn" id="lSave">Kadroyu kaydet</button><button type="button" class="btn warn" id="lClear">Kadroyu sil</button></div>
+      </div>
+      <div class="pane">
+        <h3>Nasıl çalışır?</h3>
+        <p class="hint">Her oyuncu için "İlk kadro", "Yedek" ya da boş seçin. Kadro maç sayfasında görünür ve taraftar oylamasında oy verilebilecek oyuncular bu kadrodan gelir. Kadroda olmayan oyuncuyu önce Oyuncular sekmesinden ekleyin.</p>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="oyuncular" hidden>
+      <div class="pane">
+        <h3 id="pFormTitle">Oyuncu ekle</h3>
+        <label class="fld"><span>Mahalle</span><select id="pTeam"></select></label>
+        <div class="row">
+          <label class="fld sm"><span>Forma</span><input id="pNo" type="number" min="1" max="99" inputmode="numeric"></label>
+          <label class="fld"><span>Ad soyad</span><input id="pName" type="text" maxlength="60" autocomplete="off"></label>
+        </div>
+        <div class="row">
+          <label class="fld"><span>Mevki</span><select id="pPos"><option value="">Belirtilmedi</option><option>Kaleci</option><option>Defans</option><option>Orta saha</option><option>Forvet</option></select></label>
+          <label class="fld" id="pBanWrap"><span>Ceza notu</span><input id="pBan" type="text" maxlength="80" autocomplete="off" placeholder="Örn. 1 maç ceza (20 Ekim)"></label>
+        </div>
+        <div class="photoIn">
+          <span class="photoPrev" id="pPhotoPrev" aria-hidden="true"></span>
+          <label class="fld"><span>Fotoğraf (isteğe bağlı)</span><input id="pPhoto" type="file" accept="image/*"></label>
+          <button type="button" class="btn ghost sm" id="pPhotoDel" hidden>Fotoğrafı kaldır</button>
+        </div>
+        <div class="row">
+          <button type="button" class="btn" id="pAdd">Oyuncu ekle</button>
+          <button type="button" class="btn ghost" id="pCancel" hidden>Vazgeç</button>
+        </div>
+        <label class="fld"><span>Toplu ekle (her satıra bir oyuncu: forma no ve ad)</span>
+          <textarea id="pBulk" placeholder="1 Ad Soyad&#10;7 Ad Soyad&#10;10 Ad Soyad"></textarea></label>
+        <div class="row"><button type="button" class="btn ghost" id="pBulkAdd">Listeyi ekle</button></div>
+      </div>
+      <div class="pane">
+        <h3>Kadro</h3>
+        <p class="hint">Düzenlemek için oyuncunun adına tıklayın.</p>
+        <ul class="plist" id="pList"></ul>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="takimbilgi" hidden>
+      <div class="pane">
+        <h3>Takım bilgileri</h3>
+        <label class="fld"><span>Mahalle</span><select id="tTeam"></select></label>
+        <label class="fld"><span>Kaptan</span><select id="tCaptain"></select></label>
+        <label class="fld"><span>Takım sorumlusu / antrenör</span><input id="tCoach" type="text" maxlength="80" autocomplete="off"></label>
+        <label class="fld"><span>Forma renkleri</span><input id="tColors" type="text" maxlength="60" autocomplete="off" placeholder="Örn. Kırmızı-beyaz"></label>
+        <label class="fld"><span>Takım hakkında</span><textarea id="tNote" maxlength="800"></textarea></label>
+        <div class="photoIn">
+          <span class="photoPrev" id="tLogoPrev" aria-hidden="true"></span>
+          <label class="fld"><span>Takım logosu (isteğe bağlı)</span><input id="tLogo" type="file" accept="image/*"></label>
+        </div>
+        <div class="row"><button type="button" class="btn" id="tSave">Kaydet</button></div>
+      </div>
+      <div class="pane">
+        <h3>Nerede görünür?</h3>
+        <p class="hint">Bu bilgiler takımın sayfasında gösterilir; logo ayrıca puan tablolarında, takım listesinde ve maç sayfalarında görünür.</p>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="duyurular" hidden>
+      <div class="pane">
+        <h3 id="nFormTitle">Duyuru yayınla</h3>
+        <label class="fld"><span>Başlık</span><input id="nTitle" type="text" maxlength="120" autocomplete="off"></label>
+        <label class="fld"><span>Metin</span><textarea id="nBody" maxlength="3000" style="min-height:160px"></textarea></label>
+        <label class="chk"><input id="nPin" type="checkbox"> Üstte sabitle</label>
+        <div class="row">
+          <button type="button" class="btn" id="nSave">Yayınla</button>
+          <button type="button" class="btn ghost" id="nCancel" hidden>Vazgeç</button>
+        </div>
+      </div>
+      <div class="pane">
+        <h3>Yayındaki duyurular</h3>
+        <ul class="nlist" id="nList"></ul>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="haftanin" hidden>
+      <div class="pane">
+        <h3>Haftanın kadrosu</h3>
+        <label class="fld"><span>Dönem</span><select id="wPer"></select></label>
+        <div class="row"><label class="fld"><span>Oyuncu ekle (adını yazıp listeden seçin)</span><input id="wAdd" type="text" list="wPlayers" autocomplete="off"></label><button type="button" class="btn ghost" id="wAddBtn">Ekle</button></div>
+        <datalist id="wPlayers"></datalist>
+        <ul class="nlist" id="wTeam"></ul>
+        <label class="fld"><span>Not (isteğe bağlı)</span><textarea id="wNote" maxlength="500"></textarea></label>
+      </div>
+      <div class="pane">
+        <h3>Haftanın golü</h3>
+        <label class="fld"><span>Golü atan oyuncu</span><input id="wGoalP" type="text" list="wPlayers" autocomplete="off"></label>
+        <label class="fld"><span>Maç</span><select id="wGoalM"></select></label>
+        <div class="row"><label class="fld sm"><span>Dakika</span><input id="wGoalMin" type="number" min="1" max="130" inputmode="numeric"></label>
+          <label class="fld"><span>Video bağlantısı</span><input id="wGoalVideo" type="url" maxlength="300" placeholder="https://…"></label></div>
+        <label class="fld"><span>Açıklama</span><input id="wGoalNote" type="text" maxlength="200" placeholder="Örn. Ceza sahası dışından vole"></label>
+        <div class="row"><button type="button" class="btn" id="wSave">Kaydet</button><button type="button" class="btn warn" id="wClear">Bu dönemi sil</button></div>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="galeri" hidden>
+      <div class="pane">
+        <h3>Fotoğraf yükle</h3>
+        <label class="fld"><span>Fotoğraflar (birden fazla seçebilirsiniz)</span><input id="gFiles" type="file" accept="image/*" multiple></label>
+        <label class="fld"><span>Albüm</span><input id="gAlbum" type="text" maxlength="40" list="gAlbums" placeholder="Örn. 1. Tur" autocomplete="off"></label>
+        <datalist id="gAlbums"></datalist>
+        <label class="fld"><span>İlgili maç (isteğe bağlı)</span><select id="gMatch"></select></label>
+        <label class="fld"><span>Açıklama</span><input id="gCaption" type="text" maxlength="120" autocomplete="off"></label>
+        <div class="row"><button type="button" class="btn" id="gUpload">Yükle</button></div>
+        <p class="hint" id="gProg">Fotoğraflar yüklenmeden önce telefonda küçültülür.</p>
+      </div>
+      <div class="pane">
+        <h3>Galerideki fotoğraflar</h3>
+        <div class="gadmin" id="gList"></div>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="sponsorlar" hidden>
+      <div class="pane">
+        <h3 id="sFormTitle">Sponsor ekle</h3>
+        <label class="fld"><span>Ad</span><input id="sName" type="text" maxlength="80" autocomplete="off"></label>
+        <label class="fld"><span>Web sitesi (isteğe bağlı)</span><input id="sUrl" type="url" maxlength="200" placeholder="https://…"></label>
+        <label class="fld"><span>Seviye</span><select id="sTier"><option value="1">Ana sponsor</option><option value="2">Sponsor</option><option value="3" selected>Destekçi</option></select></label>
+        <div class="photoIn"><span class="photoPrev" id="sLogoPrev" aria-hidden="true"></span><label class="fld"><span>Logo</span><input id="sLogo" type="file" accept="image/*"></label></div>
+        <div class="row"><button type="button" class="btn" id="sSave">Kaydet</button><button type="button" class="btn ghost" id="sCancel" hidden>Vazgeç</button></div>
+      </div>
+      <div class="pane">
+        <h3>Sponsorlar</h3>
+        <ul class="nlist" id="sList"></ul>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="hesaplar" hidden>
+      <div class="pane">
+        <h3>Bekleyen başvurular</h3>
+        <p class="hint">Takım temsilcileri sitedeki Giriş sayfasından hesap açıp başvurur. Onayladığınız hesap yalnızca seçtiğiniz mahallenin kadrosunu, fotoğraflarını, maç kadrolarını ve takım bilgilerini düzenleyebilir; maç sonucu giremez.</p>
+        <ul class="nlist" id="reqList"></ul>
+      </div>
+      <div class="pane">
+        <h3>Onaylı takım hesapları</h3>
+        <ul class="nlist" id="mgrList"></ul>
+      </div>
+    </div>
+
+    <div class="admin-grid" data-apane="ayarlar" hidden>
+      <div class="pane">
+        <h3>Disiplin kuralı</h3>
+        <p class="hint">Lig yönetmeliğindeki kuralı girin. 0 yazarsanız o otomatik ceza kapalı olur; elle girilen ceza notları her durumda görünür.</p>
+        <div class="row">
+          <label class="fld"><span>Kaç sarı kartta 1 maç ceza</span><input id="setY" type="number" min="0" max="10" inputmode="numeric"></label>
+          <label class="fld"><span>Kırmızı kartta kaç maç ceza</span><input id="setR" type="number" min="0" max="5" inputmode="numeric"></label>
+        </div>
+        <div class="row"><button type="button" class="btn" id="setSave">Kaydet</button></div>
+      </div>
+      <div class="pane">
+        <h3>Nerede kullanılır?</h3>
+        <p class="hint">Disiplin sayfası, oyuncu sayfaları ve maç sayfaları bu kurala göre cezalı oyuncuları otomatik gösterir.</p>
+      </div>
+    </div>
   </div>
-
-  <section class="admin" id="yonetim" hidden>
-    <div class="wrap">
-      <div class="sec-head" style="margin-bottom:0">
-        <div><div class="eyebrow" id="panelEyebrow">Yönetim paneli</div><h2 id="panelTitle">Lig yönetimi</h2>
-          <p>Kaydettiğiniz her bilgi sitede anında, herkes için güncellenir.</p></div>
-        <div class="row"><button type="button" class="btn ghost" id="adminLogout">Çıkış yap</button><button type="button" class="btn ghost" id="adminClose">Paneli kapat</button></div>
-      </div>
-      <div class="atabs" role="group" aria-label="Yönetim bölümleri">
-        <button type="button" data-atab="maclar" aria-pressed="true">Maçlar</button>
-        <button type="button" data-atab="oyuncular" aria-pressed="false">Oyuncular</button>
-        <button type="button" data-atab="duyurular" aria-pressed="false">Duyurular</button>
-        <button type="button" data-atab="takimbilgi" aria-pressed="false">Takım bilgileri</button>
-        <button type="button" data-atab="hesaplar" aria-pressed="false">Takım hesapları <em class="cnt" id="reqCount2" hidden></em></button>
-      </div>
-
-      <div class="admin-grid" data-apane="maclar">
-        <div class="pane">
-          <h3>Maç sonucu</h3>
-          <label class="fld"><span>Maç</span><select id="aMatch"></select></label>
-          <div class="row" id="koTeams" hidden>
-            <label class="fld"><span>Ev sahibi</span><select id="aKoH"></select></label>
-            <label class="fld"><span>Deplasman</span><select id="aKoA"></select></label>
-          </div>
-          <div class="row">
-            <label class="fld"><span>Durum</span>
-              <select id="aStatus"><option value="">Oynanmadı</option><option value="live">Canlı (devam ediyor)</option><option value="done">Bitti</option><option value="post">Ertelendi</option></select></label>
-            <label class="fld sm" id="aMinWrap"><span>Dakika</span><input id="aMinute" type="number" min="1" max="130" inputmode="numeric"></label>
-          </div>
-          <div class="scoreIn">
-            <span class="tn" id="aHName">—</span>
-            <input id="aHs" type="number" min="0" max="99" inputmode="numeric" aria-label="Ev sahibi gol">
-            <span class="muted">–</span>
-            <input id="aAs" type="number" min="0" max="99" inputmode="numeric" aria-label="Deplasman gol">
-            <span class="tn" id="aAName">—</span>
-          </div>
-          <label class="fld" id="penWrap" hidden><span>Beraberlikte penaltılarla kazanan</span><select id="aPen"></select></label>
-          <div>
-            <div class="fld" style="margin-bottom:6px"><span>Maç olayları</span></div>
-            <ul class="evlist" id="aEvList"></ul>
-          </div>
-          <div class="row">
-            <label class="fld" style="flex:1 1 120px"><span>Olay</span>
-              <select id="eType"><option value="G">Gol</option><option value="OG">Kendi kalesine</option><option value="Y">Sarı kart</option><option value="R">Kırmızı kart</option></select></label>
-            <label class="fld" style="flex:1 1 130px"><span>Takım</span><select id="eSide"></select></label>
-            <label class="fld sm"><span>Dakika</span><input id="eMin" type="number" min="1" max="130" inputmode="numeric"></label>
-          </div>
-          <div class="row">
-            <label class="fld"><span>Oyuncu</span><select id="ePl"></select></label>
-            <label class="fld" id="eAsWrap"><span>Asist</span><select id="eAs"></select></label>
-            <button type="button" class="btn ghost" id="eAdd">Olayı ekle</button>
-          </div>
-          <p class="hint" id="aHint"></p>
-          <div class="row">
-            <button type="button" class="btn" id="aSave">Kaydet</button>
-            <button type="button" class="btn ghost" id="aCalc">Skoru gollerden hesapla</button>
-            <button type="button" class="btn warn" id="aClear">Maç bilgisini sil</button>
-          </div>
-        </div>
-        <div class="pane">
-          <h3>Maç detayları</h3>
-          <label class="fld"><span>Maçın oyuncusu</span><select id="aMvp"></select></label>
-          <label class="fld"><span>Saha</span><input id="aVenue" type="text" maxlength="80" autocomplete="off" placeholder="Örn. Alanya Oba Sahası"></label>
-          <label class="fld"><span>Hakem</span><input id="aRef" type="text" maxlength="80" autocomplete="off"></label>
-          <label class="fld"><span>Maç videosu (YouTube bağlantısı)</span><input id="aVideo" type="url" maxlength="300" autocomplete="off" placeholder="https://www.youtube.com/watch?v=…"></label>
-          <label class="fld"><span>Maç notu</span><textarea id="aNote" maxlength="600" placeholder="Örn. Maç yağmur nedeniyle 15 dakika geç başladı."></textarea></label>
-          <p class="hint">Bu alanlar maç penceresinde görünür. Hepsi isteğe bağlıdır; kaydetmek için soldaki Kaydet düğmesini kullanın.</p>
-        </div>
-      </div>
-
-      <div class="admin-grid" data-apane="oyuncular" hidden>
-        <div class="pane">
-          <h3 id="pFormTitle">Oyuncu ekle</h3>
-          <label class="fld"><span>Mahalle</span><select id="pTeam"></select></label>
-          <div class="row">
-            <label class="fld sm"><span>Forma</span><input id="pNo" type="number" min="1" max="99" inputmode="numeric"></label>
-            <label class="fld"><span>Ad soyad</span><input id="pName" type="text" maxlength="60" autocomplete="off"></label>
-          </div>
-          <div class="row">
-            <label class="fld"><span>Mevki</span><select id="pPos"><option value="">Belirtilmedi</option><option>Kaleci</option><option>Defans</option><option>Orta saha</option><option>Forvet</option></select></label>
-            <label class="fld" id="pBanWrap"><span>Ceza notu</span><input id="pBan" type="text" maxlength="80" autocomplete="off" placeholder="Örn. 1 maç ceza (20 Ekim)"></label>
-          </div>
-          <div class="photoIn">
-            <span class="photoPrev" id="pPhotoPrev" aria-hidden="true"></span>
-            <label class="fld"><span>Fotoğraf (isteğe bağlı)</span><input id="pPhoto" type="file" accept="image/*"></label>
-            <button type="button" class="btn ghost sm" id="pPhotoDel" hidden>Fotoğrafı kaldır</button>
-          </div>
-          <div class="row">
-            <button type="button" class="btn" id="pAdd">Oyuncu ekle</button>
-            <button type="button" class="btn ghost" id="pCancel" hidden>Vazgeç</button>
-          </div>
-          <label class="fld"><span>Toplu ekle (her satıra bir oyuncu: forma no ve ad)</span>
-            <textarea id="pBulk" placeholder="1 Ad Soyad&#10;7 Ad Soyad&#10;10 Ad Soyad"></textarea></label>
-          <div class="row"><button type="button" class="btn ghost" id="pBulkAdd">Listeyi ekle</button></div>
-        </div>
-        <div class="pane">
-          <h3>Kadro</h3>
-          <p class="hint">Düzenlemek için oyuncunun adına tıklayın.</p>
-          <ul class="plist" id="pList"></ul>
-        </div>
-      </div>
-
-      <div class="admin-grid" data-apane="duyurular" hidden>
-        <div class="pane">
-          <h3 id="nFormTitle">Duyuru yayınla</h3>
-          <label class="fld"><span>Başlık</span><input id="nTitle" type="text" maxlength="120" autocomplete="off"></label>
-          <label class="fld"><span>Metin</span><textarea id="nBody" maxlength="3000" style="min-height:160px"></textarea></label>
-          <label class="chk"><input id="nPin" type="checkbox"> Üstte sabitle</label>
-          <div class="row">
-            <button type="button" class="btn" id="nSave">Yayınla</button>
-            <button type="button" class="btn ghost" id="nCancel" hidden>Vazgeç</button>
-          </div>
-        </div>
-        <div class="pane">
-          <h3>Yayındaki duyurular</h3>
-          <ul class="nlist" id="nList"></ul>
-        </div>
-      </div>
-
-      <div class="admin-grid" data-apane="takimbilgi" hidden>
-        <div class="pane">
-          <h3>Takım bilgileri</h3>
-          <label class="fld"><span>Mahalle</span><select id="tTeam"></select></label>
-          <label class="fld"><span>Kaptan</span><select id="tCaptain"></select></label>
-          <label class="fld"><span>Takım sorumlusu / antrenör</span><input id="tCoach" type="text" maxlength="80" autocomplete="off"></label>
-          <label class="fld"><span>Forma renkleri</span><input id="tColors" type="text" maxlength="60" autocomplete="off" placeholder="Örn. Kırmızı-beyaz"></label>
-          <label class="fld"><span>Takım hakkında</span><textarea id="tNote" maxlength="800"></textarea></label>
-          <div class="photoIn">
-            <span class="photoPrev" id="tLogoPrev" aria-hidden="true"></span>
-            <label class="fld"><span>Takım logosu (isteğe bağlı)</span><input id="tLogo" type="file" accept="image/*"></label>
-          </div>
-          <div class="row"><button type="button" class="btn" id="tSave">Kaydet</button></div>
-        </div>
-        <div class="pane">
-          <h3>Nerede görünür?</h3>
-          <p class="hint">Bu bilgiler Takımlar bölümünde, seçilen mahallenin kartında gösterilir. Kaptan listesi mahallenin kadrosundan gelir; önce Oyuncular sekmesinden kadroyu girin.</p>
-        </div>
-      </div>
-
-      <div class="admin-grid" data-apane="hesaplar" hidden>
-        <div class="pane">
-          <h3>Bekleyen başvurular</h3>
-          <p class="hint">Takım temsilcileri sitedeki "Giriş" düğmesinden hesap açıp başvurur. Onayladığınız hesap yalnızca seçtiğiniz mahallenin kadrosunu, fotoğraflarını ve takım bilgilerini düzenleyebilir; maç sonucu giremez.</p>
-          <ul class="nlist" id="reqList"></ul>
-        </div>
-        <div class="pane">
-          <h3>Onaylı takım hesapları</h3>
-          <ul class="nlist" id="mgrList"></ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="hero">
-    <div class="wrap">
-      <div class="liveBar" id="liveBar" hidden></div>
-    </div>
-    <div class="wrap hero-grid">
-      <div>
-        <div class="eyebrow">T.C. Alanya Belediyesi sunar</div>
-        <h1><span class="n">1.</span> Alanya<span class="l2">Mahalle Ligi</span></h1>
-        <div class="season">Dr. Ali Nazım Köseoğlu Sezonu</div>
-        <p class="lede">44 mahalle sahaya çıkıyor. Sekiz grupta oynanan 100 maçın ardından her grubun ilk iki takımı Son 16'ya kalıyor, kupa 1 Aralık'ta sahibini buluyor.</p>
-        <div class="facts">
-          <div class="fact"><b class="num">44</b><span>Mahalle</span></div>
-          <div class="fact"><b class="num" id="fPlayed">0</b><span>Oynanan maç</span></div>
-          <div class="fact"><b class="num" id="fGoals">0</b><span>Gol</span></div>
-          <div class="fact"><b class="num" id="fAvg">0</b><span>Maç başı gol</span></div>
-        </div>
-        <div class="chipsRow">
-          <div class="live"><i></i>Tüm maçlar TV82 YouTube kanalında canlı</div>
-          <div class="live sea" id="seaChip" hidden></div>
-        </div>
-        <div class="live-note" id="dataNote">Sonuçlar yükleniyor…</div>
-      </div>
-      <aside class="board" aria-live="polite" id="board"></aside>
-    </div>
-    <svg class="skyline" viewBox="0 0 1200 110" preserveAspectRatio="none" aria-hidden="true">
-      <path class="hill" d="M0 110V88C70 86 130 74 200 66C240 52 268 34 300 30C330 18 360 14 392 20C420 12 446 16 470 30L520 40C580 58 640 70 700 78C740 82 770 84 800 86C900 88 1050 86 1200 88V110Z"/>
-      <path class="wall" d="M296 30h6v-6h6v6h8v-6h6v6h8v-8h6v8h10v-6h6v6h12v-8h6v8h12v-6h6v6h14v-6h6v6"/>
-      <g class="kule"><path d="M738 82V56l6-6h20l6 6v26z"/><path d="M738 56v-6h4v3h4v-3h4v3h4v-3h4v3h4v-3h4v3h4v-3h4v6"/></g>
-      <path class="wave" d="M0 98C40 94 80 102 120 98S200 94 240 98S320 102 360 98S440 94 480 98S560 102 600 98S680 94 720 98S800 102 840 98S920 94 960 98S1040 102 1080 98S1160 94 1200 98V110H0Z"/>
-    </svg>
-  </section>
-
-  <section class="block" id="gundem">
-    <div class="wrap">
-      <div class="sec-head"><div><div class="eyebrow">Ligde neler oluyor</div><h2>Gündem</h2></div></div>
-      <div class="gundem">
-        <div class="panel"><header><h3>Son sonuçlar</h3><a href="#fikstur">Tüm fikstür</a></header><div id="lastResults"></div></div>
-        <div class="panel"><header><h3>Duyurular</h3><a href="#duyurular">Tümü</a></header><div id="newsMini"></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="block" id="gruplar">
-    <div class="wrap">
-      <div class="sec-head">
-        <div><div class="eyebrow">Grup aşaması</div><h2>Gruplar ve puan durumu</h2>
-          <p>Sıralama: puan, averaj, atılan gol. Takım adına dokunarak takım sayfasını açabilirsiniz.</p></div>
-        <div class="legend"><i></i>İlk iki sıra Son 16'ya yükselir</div>
-      </div>
-      <div class="groups" id="groups"></div>
-    </div>
-  </section>
-
-  <section class="block" id="fikstur">
-    <div class="wrap">
-      <div class="sec-head">
-        <div><div class="eyebrow">4 Ekim – 11 Kasım 2026</div><h2>Fikstür</h2>
-          <p>Maçlar 19:30, 20:40, 21:50 ve 23:00'te başlar. Açılış gününün saatleri kura ile belirlenecek. Ayrıntılar için maça dokunun.</p></div>
-      </div>
-      <div class="controls">
-        <div class="tabs" id="turTabs" role="group" aria-label="Tur seçimi"></div>
-        <div class="chips" id="gChips" role="group" aria-label="Grup filtresi"></div>
-        <input class="search" id="q" type="search" placeholder="Mahalle ara…" aria-label="Mahalle ara">
-      </div>
-      <div id="fixture"></div>
-    </div>
-  </section>
-
-  <section class="block" id="istatistik">
-    <div class="wrap">
-      <div class="sec-head">
-        <div><div class="eyebrow">Oyuncu ve takım istatistikleri</div><h2>İstatistik</h2>
-          <p>Girilen maç olaylarından hesaplanır. Fair play puanı: sarı kart 1, kırmızı kart 3 puan; az olan önde.</p></div>
-      </div>
-      <div class="leaders" id="leaders"></div>
-      <h3 class="subhead">Takımlar</h3>
-      <div class="teamStats" id="teamStats"></div>
-    </div>
-  </section>
-
-  <section class="block" id="takimlar">
-    <div class="wrap">
-      <div class="sec-head">
-        <div><div class="eyebrow">44 mahalle</div><h2>Takımlar</h2>
-          <p>Bir mahalle seçin: form durumu, istatistikler, kadro, takvim ve gruptan çıkarsa Son 16'daki rakibi.</p></div>
-      </div>
-      <div class="teamGrid" id="teamGrid"></div>
-      <div class="mine">
-        <div class="picker">
-          <label for="teamSel">Mahalle</label>
-          <select id="teamSel"></select>
-          <div class="team-id" id="teamId"></div>
-          <div class="tiles" id="teamTiles"></div>
-          <dl class="tinfo" id="teamInfo"></dl>
-          <div class="path" id="teamPath"></div>
-          <div class="actions">
-            <button type="button" class="btn sm line" id="teamIcs">Takvime ekle</button>
-            <button type="button" class="btn sm line" id="teamShare">Paylaş</button>
-          </div>
-        </div>
-        <div style="min-width:0">
-          <ol class="timeline" id="teamLine"></ol>
-          <div class="squad" id="squad"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="block" id="final">
-    <div class="wrap">
-      <div class="sec-head">
-        <div><div class="eyebrow">Son 16 → Büyük Final</div><h2>Final yolu</h2>
-          <p>Her maç gecesi iki karşılaşma oynanır: 20:00 ve 21:30. Grup maçları bittikçe eşleşmeler kendiliğinden dolar.</p></div>
-      </div>
-      <div class="bracket-scroll"><div class="bracket" id="bracket"></div></div>
-      <div class="ko-note">
-        <span><b>Beraberlikte:</b> 2×10 dk uzatma, ardından penaltılar</span>
-        <span><b>Dinlenme:</b> eleme turları arasında 3–7 gün</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="block" id="duyurular">
-    <div class="wrap">
-      <div class="sec-head"><div><div class="eyebrow">Lig yönetiminden</div><h2>Duyurular</h2></div></div>
-      <div class="news" id="newsList"></div>
-    </div>
-  </section>
-
-  <section class="block" id="bilgi">
-    <div class="wrap">
-      <div class="sec-head"><div><div class="eyebrow">Turnuva rehberi</div><h2>Bilmeniz gerekenler</h2></div></div>
-      <div class="info">
-        <article>
-          <h3>Format</h3>
-          <ul>
-            <li>A, B, C, D gruplarında 6; E, F, G, H gruplarında 5 takım.</li>
-            <li>5 takımlı gruplarda her turda bir takım bay geçer.</li>
-            <li>Her grubun ilk iki takımı Son 16'ya kalır.</li>
-            <li>Eleme turları tek maç üzerinden oynanır.</li>
-          </ul>
-        </article>
-        <article>
-          <h3>Maç oynanmayan günler</h3>
-          <dl>
-            <dt>5 Ekim</dt><dd>A Milli Takım maçı</dd>
-            <dt>19 Ekim</dt><dd>Trabzonspor – Beşiktaş</dd>
-            <dt>23 Ekim</dt><dd>Alanyaspor iç saha maçı</dd>
-            <dt>26 Ekim</dt><dd>Galatasaray – Fenerbahçe</dd>
-          </dl>
-        </article>
-        <article>
-          <h3>Canlı yayın</h3>
-          <p style="margin:0">Grup aşamasından Büyük Final'e kadar bütün maçlar <b>TV82</b> YouTube kanalında canlı yayınlanır.</p>
-          <p class="muted" style="margin:10px 0 0">Grup maçları: 19:30 · 20:40 · 21:50 · 23:00<br>Eleme maçları: 20:00 · 21:30</p>
-        </article>
-      </div>
-      <h3 class="subhead">Sıkça sorulan sorular</h3>
-      <div class="faq">
-        <details><summary>Puan eşitliğinde sıralama nasıl belirlenir?</summary><p>Sitedeki tablolar önce puana, sonra averaja (atılan eksi yenen gol), sonra atılan gole bakar. Resmi sıralama için lig yönetmeliği esastır.</p></details>
-        <details><summary>Eleme maçında beraberlik olursa ne olur?</summary><p>Normal süre berabere biterse 2×10 dakika uzatma oynanır. Uzatmada da eşitlik bozulmazsa kazanan penaltılarla belirlenir.</p></details>
-        <details><summary>Bay geçmek ne demek?</summary><p>E, F, G ve H gruplarında beş takım olduğu için her turda bir takım maç yapmaz. Bay geçen takım o tur puan almaz ve kaybetmez.</p></details>
-        <details><summary>Maçları nereden izleyebilirim?</summary><p>Tüm maçlar TV82'nin YouTube kanalında canlı yayınlanır. Yayın bağlantısı eklenen maçlarda, maç penceresinde videoya giden bir düğme görünür.</p></details>
-        <details><summary>Takımımın maçlarını telefon takvimime nasıl eklerim?</summary><p>Takımlar bölümünde mahallenizi seçip "Takvime ekle"ye dokunun. İnen dosyayı açtığınızda bütün maçlar takviminize eklenir.</p></details>
-        <details><summary>Sonuçlar ne zaman güncellenir?</summary><p>Lig yönetimi sonuçları girdiği anda site herkes için güncellenir; sayfayı yenilemenize gerek yoktur.</p></details>
-      </div>
-    </div>
-  </section>
-</main>
+</section>
 
 <footer>
   <div class="wrap">
-    <div><b>Alanya'da sporun kalbi mahallelerde atıyor</b><br>1. Alanya Mahalle Ligi · Dr. Ali Nazım Köseoğlu Sezonu</div>
+    <div><b>Alanya'da sporun kalbi mahallelerde atıyor</b><br>1. Alanya Mahalle Ligi · Dr. Ali Nazım Köseoğlu Sezonu<br>
+      <span class="flinks"><a href="/sponsorlar">Sponsorlar</a> · <a href="/bilgi">Bilgi ve SSS</a> · <a href="/giris">Takım girişi</a></span></div>
     <div><b>Alanya Bizim Evimiz</b><br>Daha güzel bir Alanya</div>
   </div>
 </footer>
 
-<dialog class="modal" id="matchModal" aria-labelledby="mTitle"></dialog>
+<dialog class="modal lightbox" id="lightbox" aria-label="Fotoğraf"></dialog>
 </div>

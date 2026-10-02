@@ -2,7 +2,7 @@
 
 Dr. Ali Nazım Köseoğlu Sezonu web sitesi: gruplar, canlı puan durumu, fikstür, gol ve asist krallığı, kart istatistikleri, takım kadroları, final yolu ve yönetici paneli.
 
-Site tek bir `index.html` dosyasıdır (kaynak parçaları `src/` altında; düzenledikten sonra `python src/build.py` ile birleştirilir) ve GitHub Pages'te çalışır. Sonuçlar ve oyuncular Firebase Firestore'da tutulur; yönetici girişi Firebase Authentication (e-posta + şifre) ile yapılır.
+Site tek bir `index.html` dosyasıdır (kaynak parçaları `src/` ve `src/js/` altında; düzenledikten sonra `python src/build.py` ile `index.html` ve `404.html` üretilir — `404.html`, GitHub Pages'te `/fikstur`, `/takim/alara` gibi sayfa adreslerinin açılmasını sağlar) ve GitHub Pages'te çalışır. Sonuçlar ve oyuncular Firebase Firestore'da tutulur; yönetici girişi Firebase Authentication (e-posta + şifre) ile yapılır.
 
 ## Dosyalar
 
@@ -40,3 +40,14 @@ Firebase ayarlanmadan da site açılır; fikstür, gruplar ve final yolu görün
 - **Takım hesabı**: Sitedeki "Giriş > Takım hesabı oluştur" ile açılır ve `requests/{uid}` başvurusu oluşturur. Yönetici "Takım hesapları" sekmesinden onaylayınca `managers/{uid}` kaydı oluşur; bu hesap yalnızca kendi mahallesinin oyuncularını, fotoğraflarını, logosunu ve takım bilgilerini düzenleyebilir.
 
 Fotoğraflar ve logolar tarayıcıda 320 piksel kareye küçültülüp `photos/{oyuncuId}` ve `logos/{takım}` belgelerinde JPEG olarak saklanır (Firebase Storage gerekmez).
+
+## Sayfalar
+
+`/` ana sayfa · `/fikstur` · `/gruplar` · `/grup/a` … `/grup/h` · `/istatistik` · `/takimlar` · `/takim/<mahalle>` · `/oyuncu/<id>` · `/mac/<id>` · `/final` · `/tahmin` · `/haftanin` · `/galeri` · `/disiplin` · `/duyurular` · `/duyuru/<id>` · `/sponsorlar` · `/bilgi` · `/giris` · `/yonetim`
+
+## Diğer koleksiyonlar
+
+- `lineups/<maçId>__<takım>`: maç kadrosu (`start`, `subs`); yönetici ve o takımın hesabı yazar.
+- `fans/<uid>`: tahmin oyunu (`nick`, `p: {maçId: [ev, deplasman]}`); taraftarlar anonim girişle yazar, kurallar maç başladıktan sonra değişikliği reddeder (`kickoffs/<maçId>.at`).
+- `mvpvotes/<maçId>__<uid>`: taraftar oylaması, yalnızca biten maçlar.
+- `weekly/<dönem>`, `sponsors`, `gallery` + `galleryFull`, `settings/discipline`: yalnızca yönetici yazar.
