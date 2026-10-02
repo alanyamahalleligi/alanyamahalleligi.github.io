@@ -6,6 +6,9 @@ service cloud.firestore {
       return request.auth != null
         && request.auth.uid in ['VP4mUdPWc0R0wQEkPvRHTa3YDR42'];
     }
+    function isDelete() {
+      return request.resource == null;
+    }
 
     match /matches/{matchId} {
       allow read: if true;
@@ -15,10 +18,25 @@ service cloud.firestore {
     match /players/{playerId} {
       allow read: if true;
       allow write: if isAdmin()
-        && (request.resource == null
+        && (isDelete()
             || (request.resource.data.name is string
                 && request.resource.data.name.size() <= 60
                 && request.resource.data.team is string));
+    }
+
+    match /news/{newsId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && (isDelete()
+            || (request.resource.data.title is string
+                && request.resource.data.title.size() <= 120
+                && request.resource.data.body is string
+                && request.resource.data.body.size() <= 3000));
+    }
+
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     match /{document=**} {
