@@ -1,5 +1,5 @@
 // Basit çevrimdışı destek: sayfa önce ağdan alınır, bağlantı yoksa son kopya gösterilir.
-const CACHE = 'aml-v3';
+const CACHE = 'aml-v4';
 const SHELL = ['./', './index.html', './firebase-config.js', './icon.svg', './manifest.webmanifest'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

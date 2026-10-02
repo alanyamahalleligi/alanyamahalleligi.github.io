@@ -2,7 +2,7 @@
 
 Dr. Ali Nazım Köseoğlu Sezonu web sitesi: gruplar, canlı puan durumu, fikstür, gol ve asist krallığı, kart istatistikleri, takım kadroları, final yolu ve yönetici paneli.
 
-Site tek bir `index.html` dosyasıdır ve GitHub Pages'te çalışır. Sonuçlar ve oyuncular Firebase Firestore'da tutulur; yönetici girişi Firebase Authentication (e-posta + şifre) ile yapılır.
+Site tek bir `index.html` dosyasıdır (kaynak parçaları `src/` altında; düzenledikten sonra `python src/build.py` ile birleştirilir) ve GitHub Pages'te çalışır. Sonuçlar ve oyuncular Firebase Firestore'da tutulur; yönetici girişi Firebase Authentication (e-posta + şifre) ile yapılır.
 
 ## Dosyalar
 
@@ -33,3 +33,10 @@ Repo ayarlarında **Settings > Pages > Source: Deploy from a branch**, branch `m
 - `players/{id}`: `team`, `name`, `no`, `pos`.
 
 Firebase ayarlanmadan da site açılır; fikstür, gruplar ve final yolu görünür, sonuç girişi kapalı kalır.
+
+## Hesap türleri
+
+- **Yönetici** (UID'si `firebase-config.js` ve `firestore.rules` içinde): maç sonuçları, olaylar, duyurular, tüm kadrolar, takım hesabı onayları.
+- **Takım hesabı**: Sitedeki "Giriş > Takım hesabı oluştur" ile açılır ve `requests/{uid}` başvurusu oluşturur. Yönetici "Takım hesapları" sekmesinden onaylayınca `managers/{uid}` kaydı oluşur; bu hesap yalnızca kendi mahallesinin oyuncularını, fotoğraflarını, logosunu ve takım bilgilerini düzenleyebilir.
+
+Fotoğraflar ve logolar tarayıcıda 320 piksel kareye küçültülüp `photos/{oyuncuId}` ve `logos/{takım}` belgelerinde JPEG olarak saklanır (Firebase Storage gerekmez).

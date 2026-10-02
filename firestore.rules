@@ -6,9 +6,16 @@ service cloud.firestore {
       return request.auth != null
         && request.auth.uid in ['VP4mUdPWc0R0wQEkPvRHTa3YDR42'];
     }
-    function isDelete() {
-      return request.resource == null;
+    function signedIn() { return request.auth != null; }
+    function managerDoc() {
+      return /databases/$(database)/documents/managers/$(request.auth.uid);
     }
+    // Onaylanmış takım hesabı ve bu takımın sorumlusu mu?
+    function isManagerOf(team) {
+      return signedIn() && exists(managerDoc()) && get(managerDoc()).data.team == team;
+    }
+    function isDelete() { return request.resource == null; }
+    function smallStr(v, n) { return v is string && v.size() <= n; }
 
     match /matches/{matchId} {
       allow read: if true;
@@ -17,26 +24,71 @@ service cloud.firestore {
 
     match /players/{playerId} {
       allow read: if true;
+      function validPlayer() {
+        return smallStr(request.resource.data.name, 60)
+          && request.resource.data.name.size() > 0
+          && request.resource.data.team is string;
+      }
+      allow create: if validPlayer()
+        && (isAdmin() || (isManagerOf(request.resource.data.team)
+                          && request.resource.data.get('ban', '') == ''));
+      allow update: if validPlayer()
+        && (isAdmin() || (isManagerOf(resource.data.team)
+                          && request.resource.data.team == resource.data.team
+                          && request.resource.data.get('ban', '') == resource.data.get('ban', '')));
+      allow delete: if isAdmin() || isManagerOf(resource.data.team);
+    }
+
+    // Oyuncu fotoğrafları (küçültülmüş JPEG, data URL)
+    match /photos/{playerId} {
+      allow read: if true;
+      allow create, update: if smallStr(request.resource.data.data, 150000)
+        && request.resource.data.data.matches('data:image/jpeg;base64,.*')
+        && (isAdmin() || (isManagerOf(request.resource.data.team)
+                          && (resource == null || resource.data.team == request.resource.data.team)));
+      allow delete: if isAdmin() || isManagerOf(resource.data.team);
+    }
+
+    // Takım logoları
+    match /logos/{teamId} {
+      allow read: if true;
+      allow create, update: if smallStr(request.resource.data.data, 150000)
+        && request.resource.data.data.matches('data:image/jpeg;base64,.*')
+        && (isAdmin() || isManagerOf(request.resource.data.team));
+      allow delete: if isAdmin() || isManagerOf(resource.data.team);
+    }
+
+    match /teams/{teamId} {
+      allow read: if true;
       allow write: if isAdmin()
-        && (isDelete()
-            || (request.resource.data.name is string
-                && request.resource.data.name.size() <= 60
-                && request.resource.data.team is string));
+        || (!isDelete() && isManagerOf(request.resource.data.team)
+            && (resource == null || resource.data.team == request.resource.data.team));
     }
 
     match /news/{newsId} {
       allow read: if true;
       allow write: if isAdmin()
         && (isDelete()
-            || (request.resource.data.title is string
-                && request.resource.data.title.size() <= 120
-                && request.resource.data.body is string
-                && request.resource.data.body.size() <= 3000));
+            || (smallStr(request.resource.data.title, 120)
+                && smallStr(request.resource.data.body, 3000)));
     }
 
-    match /teams/{teamId} {
-      allow read: if true;
+    // Onaylanmış takım hesapları: kim hangi takımı yönetiyor
+    match /managers/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
       allow write: if isAdmin();
+    }
+
+    // Takım hesabı başvuruları
+    match /requests/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && smallStr(request.resource.data.team, 40)
+        && smallStr(request.resource.data.name, 60)
+        && smallStr(request.resource.data.email, 120)
+        && smallStr(request.resource.data.get('phone', ''), 20)
+        && smallStr(request.resource.data.get('note', ''), 300);
+      allow delete: if isAdmin() || (signedIn() && request.auth.uid == uid);
     }
 
     match /{document=**} {
