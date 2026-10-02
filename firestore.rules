@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Yönetici hesaplarının UID'leri: firebase-config.js içindeki "admins" listesiyle aynı tutun
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid in ['VP4mUdPWc0R0wQEkPvRHTa3YDR42'];
+    }
+
+    match /matches/{matchId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /players/{playerId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && (request.resource == null
+            || (request.resource.data.name is string
+                && request.resource.data.name.size() <= 60
+                && request.resource.data.team is string));
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
