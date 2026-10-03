@@ -23,7 +23,7 @@
 <script>try{var t=localStorage.getItem('aml-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:wght@400;500;600;700&family=Kaushan+Script&display=swap">
 <style>
 /* Layout: stadyum tabelası gibi yoğun kondanse başlıklar + deniz/sur tonları; hero'da skorbord, altta sekmeli fikstür, grup tabloları, final ağacı */
 :root{
@@ -785,6 +785,32 @@ footer a,.flinks a{color:var(--glow)}
 @media print{.page-head,.teamHero,.playerHero,.matchHero{background:none!important;color:#000!important;box-shadow:none;padding:0}
   .page-head .ptitle,.teamHero .ptitle,.playerHero .ptitle{color:#000}.page-head::after,.teamHero::after,.playerHero::after{display:none}
   .gcard header{background:none!important;color:#000}.gcard header .letter{color:#000}#view>*{animation:none}}
+
+/* ===== v7: Alanya ===== */
+.scene{display:block;width:100%;height:clamp(150px,19vw,260px);margin-top:26px}
+.scene .scBlend{fill:var(--bg)}
+.hero::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");background-size:64px 64px;pointer-events:none;
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);mask-image:linear-gradient(180deg,#000,transparent 70%)}
+.hero>*{position:relative}
+.slogan{font-family:"Kaushan Script","Segoe Script","Brush Script MT",cursive;font-size:clamp(1.5rem,3.4vw,2.1rem);color:var(--glow);line-height:1.1;margin-top:10px;transform:rotate(-3deg);transform-origin:left center;text-shadow:0 0 22px color-mix(in srgb,var(--glow) 45%,transparent)}
+.fslogan .slogan{display:inline-block;font-size:1.7rem;margin:0 0 4px}
+.page-head,.teamHero,.playerHero,.matchHero{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Cg fill='%23fff' fill-opacity='.09'%3E%3Cpath d='M22 150l6-92 14-4h36l14 4 6 92z'/%3E%3Cpath d='M24 58l2-14h68l2 14zM28 44V34h8v10zM42 44V34h8v10zM56 44V34h8v10zM70 44V34h8v10zM84 44V34h8v10zM42 34l2-18h32l2 18zM46 16V8h6v8zM57 16V8h6v8zM68 16V8h6v8z'/%3E%3C/g%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.14),transparent 70%),linear-gradient(135deg,var(--night),var(--night-2));
+  background-repeat:no-repeat,repeat,no-repeat,no-repeat;background-position:right 26px bottom -6px,0 0,0 0,0 0;background-size:auto 88%,64px 64px,auto,auto}
+.teamHero{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Cg fill='%23fff' fill-opacity='.09'%3E%3Cpath d='M22 150l6-92 14-4h36l14 4 6 92z'/%3E%3Cpath d='M24 58l2-14h68l2 14zM28 44V34h8v10zM42 44V34h8v10zM56 44V34h8v10zM70 44V34h8v10zM84 44V34h8v10zM42 34l2-18h32l2 18zM46 16V8h6v8zM57 16V8h6v8zM68 16V8h6v8z'/%3E%3C/g%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.12),transparent 70%),linear-gradient(135deg,var(--night) 25%,color-mix(in srgb,var(--g,var(--night-2)) 60%,var(--night)))}
+.matchHero{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(460px 240px at 10% 0,rgba(255,236,170,.16),transparent 70%),radial-gradient(460px 240px at 90% 0,rgba(255,236,170,.16),transparent 70%),linear-gradient(165deg,var(--night),var(--night-2));
+  background-repeat:repeat,no-repeat,no-repeat,no-repeat;background-position:0 0;background-size:64px 64px,auto,auto,auto}
+.page-head::after,.teamHero::after,.playerHero::after{display:none}
+@media (max-width:640px){.page-head,.teamHero,.playerHero{background-size:auto 54%,64px 64px,auto,auto;background-position:right 10px bottom -4px,0 0,0 0,0 0}}
+footer{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(180deg,var(--night),#06121b);background-size:64px 64px,auto;position:relative;padding-top:44px}
+footer::before{content:"";position:absolute;left:0;right:0;top:-1px;height:18px;background:var(--bg);
+  -webkit-mask:radial-gradient(18px 12px at 50% 0,#000 98%,transparent) 0 0/36px 18px repeat-x;mask:radial-gradient(18px 12px at 50% 0,#000 98%,transparent) 0 0/36px 18px repeat-x}
+footer{border-top:0}
+.btn{background:linear-gradient(120deg,#ffc35c,#ff9a3d)}
+.btn.line,.btn.ghost,.btn.warn{background:var(--surface)}
+.btn.ghost,.btn.warn{background:transparent}
+.page-head .btn.line,.teamHero .btn.line,.playerHero .btn.line,.matchHero .btn.line{background:rgba(255,255,255,.08)}
+.subhead::before{background:linear-gradient(var(--accent),#ff9a3d)}
+@media print{.page-head,.teamHero,.playerHero,.matchHero{background-image:none!important}}
 </style>
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <script src="/firebase-config.js"></script>
@@ -1075,7 +1101,7 @@ footer a,.flinks a{color:var(--glow)}
   <div class="wrap">
     <div><b>Alanya'da sporun kalbi mahallelerde atıyor</b><br>1. Alanya Mahalle Ligi · Dr. Ali Nazım Köseoğlu Sezonu<br>
       <span class="flinks"><a href="/sponsorlar">Sponsorlar</a> · <a href="/bilgi">Bilgi ve SSS</a> · <a href="/giris">Takım girişi</a></span></div>
-    <div><b>Alanya Bizim Evimiz</b><br>Daha güzel bir Alanya</div>
+    <div class="fslogan"><span class="slogan">Alanya Bizim Evimiz</span><br>Daha güzel bir Alanya</div>
   </div>
 </footer>
 
@@ -1494,11 +1520,66 @@ function liveBarHtml(){
   return `<div class="liveBar"><span class="badge live" style="background:#fff;color:#d7261e">Canlı</span>${live.map(m=>{const r=DATA.matches[m.id];
     return `<a href="/mac/${m.id}">${esc(m.h)} ${r.hs??0}–${r.as??0} ${esc(m.a)}${r.minute?` · ${r.minute}'`:''}</a>`}).join('')}</div>`;
 }
-const SKYLINE=`<svg class="skyline" viewBox="0 0 1200 110" preserveAspectRatio="none" aria-hidden="true">
-  <path class="hill" d="M0 110V88C70 86 130 74 200 66C240 52 268 34 300 30C330 18 360 14 392 20C420 12 446 16 470 30L520 40C580 58 640 70 700 78C740 82 770 84 800 86C900 88 1050 86 1200 88V110Z"/>
-  <path class="wall" d="M296 30h6v-6h6v6h8v-6h6v6h8v-8h6v8h10v-6h6v6h12v-8h6v8h12v-6h6v6h14v-6h6v6"/>
-  <g class="kule"><path d="M738 82V56l6-6h20l6 6v26z"/><path d="M738 56v-6h4v3h4v-3h4v3h4v-3h4v3h4v-3h4v3h4v-3h4v6"/></g>
-  <path class="wave" d="M0 98C40 94 80 102 120 98S200 94 240 98S320 102 360 98S440 94 480 98S560 102 600 98S680 94 720 98S800 102 840 98S920 94 960 98S1040 102 1080 98S1160 94 1200 98V110H0Z"/></svg>`;
+const SKYLINE=`<svg class="scene" viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="scSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f6e7a"/><stop offset="1" stop-color="#0a3d4c"/></linearGradient>
+    <radialGradient id="scMoon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe9b0" stop-opacity=".35"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g fill="#fff">
+    <circle cx="60" cy="40" r="1.2" opacity=".7"/><circle cx="150" cy="78" r=".9" opacity=".5"/><circle cx="230" cy="30" r="1.4" opacity=".8"/><circle cx="320" cy="62" r="1" opacity=".5"/>
+    <circle cx="410" cy="24" r="1.1" opacity=".7"/><circle cx="560" cy="44" r="1.3" opacity=".6"/><circle cx="660" cy="18" r=".9" opacity=".8"/><circle cx="740" cy="70" r="1" opacity=".5"/>
+    <circle cx="830" cy="36" r="1.4" opacity=".7"/><circle cx="930" cy="60" r=".9" opacity=".6"/><circle cx="1010" cy="26" r="1.2" opacity=".8"/><circle cx="1090" cy="84" r="1" opacity=".5"/>
+    <circle cx="1290" cy="40" r="1.1" opacity=".7"/><circle cx="1370" cy="76" r="1.3" opacity=".6"/><circle cx="1410" cy="22" r=".9" opacity=".8"/><circle cx="500" cy="80" r=".8" opacity=".5"/>
+  </g>
+  <circle cx="1180" cy="60" r="70" fill="url(#scMoon)"/>
+  <circle cx="1180" cy="60" r="24" fill="#ffe9b0"/>
+  <!-- Toroslar -->
+  <path d="M0 176 90 124l80 30 90-56 80 44 90-34 90 44 100-32 100 38 100-32 80 26 100-40 100 36 100-42 100 36 140-28V260H0Z" fill="#fff" opacity=".045"/>
+  <path d="M0 200 140 160l120 30 150-44 130 40 160-30 170 44 150-36 160 30 260-34V260H0Z" fill="#fff" opacity=".04"/>
+  <!-- Kale yarımadası -->
+  <path d="M120 234c80-4 130-32 200-62 60-28 100-60 160-74 60-12 120-4 160 16 60 28 100 64 160 88 60 20 120 28 180 32Z" fill="#0b2334"/>
+  <path d="M300 182c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" stroke="#9fbcc4" stroke-opacity=".55" stroke-width="3"/>
+  <path d="M300 178c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" stroke="#9fbcc4" stroke-opacity=".55" stroke-width="5" stroke-dasharray="6 6"/>
+  <path d="M484 96V78h6v-6h6v6h7v-6h6v6h7v-6h6v6h4v18Z" fill="#9fbcc4" fill-opacity=".7"/>
+  <rect x="396" y="118" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/><rect x="606" y="100" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/><rect x="700" y="144" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/>
+  <!-- Palmiyeler -->
+  <g fill="none" stroke="#071925" stroke-linecap="round">
+    <path d="M190 234c2-18 6-28 12-40" stroke-width="5"/>
+    <path d="M202 194c-10-8-22-8-30-2M202 194c-6-12-18-18-28-16M202 194c2-12 10-20 20-22M202 194c10-8 22-8 30-2M202 194c8-2 18 2 24 10M202 194c-8-2-18 2-24 10" stroke-width="3.5"/>
+    <path d="M244 234c0-12 2-20 6-28" stroke-width="4"/>
+    <path d="M250 206c-8-6-16-6-22-2M250 206c-4-9-13-13-20-12M250 206c2-9 8-14 15-16M250 206c8-6 16-6 22-2M250 206c6-1 13 2 17 8" stroke-width="3"/>
+    <path d="M1330 234c-2-16-6-26-12-36" stroke-width="5"/>
+    <path d="M1318 198c10-8 22-8 30-2M1318 198c6-12 18-18 28-16M1318 198c-2-12-10-20-20-22M1318 198c-10-8-22-8-30-2M1318 198c-8-2-18 2-24 10M1318 198c8-2 18 2 24 10" stroke-width="3.5"/>
+  </g>
+  <!-- Deniz -->
+  <rect x="0" y="232" width="1440" height="28" fill="url(#scSea)"/>
+  <g stroke="#ffe9b0" stroke-linecap="round" stroke-width="2" opacity=".4"><path d="M1160 238h40M1150 244h60M1166 250h28"/></g>
+  <g stroke="#fff" stroke-opacity=".14" stroke-width="1.5" fill="none"><path d="M40 240c20-3 40 3 60 0s40 3 60 0M520 244c20-3 40 3 60 0s40 3 60 0M900 248c20-3 40 3 60 0M1280 242c20-3 40 3 60 0s40 3 60 0"/></g>
+  <!-- Kızılkule -->
+  <g>
+    <path d="M820 234l6-78 14-4-2 82z" fill="#a83219"/>
+    <path d="M838 234l2-82h28l2 82z" fill="#d94f2b"/>
+    <path d="M870 234l-2-82 14 4 6 78z" fill="#b53a1e"/>
+    <path d="M822 156l2-12h60l2 12z" fill="#c2452a"/>
+    <path d="M826 144v-8h6v8zM837 144v-8h6v8zM848 144v-8h6v8zM859 144v-8h6v8zM870 144v-8h6v8z" fill="#c2452a"/>
+    <path d="M838 136l2-16h28l2 16z" fill="#cf4a28"/>
+    <path d="M841 120v-6h5v6zM851 120v-6h5v6zM861 120v-6h5v6z" fill="#cf4a28"/>
+    <path d="M851 172h5v12h-5zM851 200h5v12h-5zM829 186h3v10h-3zM877 186h3v10h-3z" fill="#5a1a0c"/>
+    <path d="M854 114V92" stroke="#cfd8dc" stroke-width="1.5"/>
+    <path d="M854 92h18l-4 5 4 5h-18z" fill="#e30a17"/>
+  </g>
+  <!-- Tersane -->
+  <path d="M908 234v-20h100v20z" fill="#1c4256"/>
+  <path d="M913 234v-9a7 7 0 0 1 14 0v9zM932 234v-9a7 7 0 0 1 14 0v9zM951 234v-9a7 7 0 0 1 14 0v9zM970 234v-9a7 7 0 0 1 14 0v9zM989 234v-9a7 7 0 0 1 14 0v9z" fill="#051119"/>
+  <!-- Tekne -->
+  <g>
+    <path d="M1056 238h46l-7 8h-32z" fill="#071925"/>
+    <path d="M1078 238v-26" stroke="#071925" stroke-width="2"/>
+    <path d="M1080 214l16 22h-16z" fill="#fff" fill-opacity=".8"/>
+    <path d="M1076 220l-12 16h12z" fill="#fff" fill-opacity=".55"/>
+  </g>
+  <path class="scBlend" d="M0 252c120-6 240 6 360 0s240-6 360 0 240 6 360 0 240-6 360 0v8H0Z"/>
+</svg>`;
 PAGES.home=()=>{
   let n=0,g=0; everyMatch().forEach(m=>{const s=sc(m.id);if(s){n++;g+=s[0]+s[1];}});
   const done=everyMatch().filter(m=>sc(m.id)).sort(byTime).reverse().slice(0,6);
@@ -1511,6 +1592,7 @@ PAGES.home=()=>{
       <div class="eyebrow">T.C. Alanya Belediyesi sunar</div>
       <h1><span class="n">1.</span> Alanya<span class="l2">Mahalle Ligi</span></h1>
       <div class="season">Dr. Ali Nazım Köseoğlu Sezonu</div>
+      <div class="slogan">Alanya Bizim Evimiz</div>
       <p class="lede">44 mahalle sahaya çıkıyor. Sekiz grupta oynanan 100 maçın ardından her grubun ilk iki takımı Son 16'ya kalıyor, kupa 1 Aralık'ta sahibini buluyor.</p>
       <div class="facts"><div class="fact"><b class="num">44</b><span>Mahalle</span></div><div class="fact"><b class="num">${n}</b><span>Oynanan maç</span></div><div class="fact"><b class="num">${g}</b><span>Gol</span></div><div class="fact"><b class="num">${n?(g/n).toFixed(1).replace('.',','):'0'}</b><span>Maç başı gol</span></div></div>
       <div class="chipsRow"><div class="live"><i></i>Tüm maçlar TV82 YouTube kanalında canlı</div>${SEA!=null?`<div class="live sea"><i></i>Alanya'da deniz suyu ${SEA.toFixed(1).replace('.',',')}°C</div>`:''}</div>

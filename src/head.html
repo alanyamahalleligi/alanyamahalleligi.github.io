@@ -23,7 +23,7 @@
 <script>try{var t=localStorage.getItem('aml-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:wght@400;500;600;700&family=Kaushan+Script&display=swap">
 <style>
 /* Layout: stadyum tabelası gibi yoğun kondanse başlıklar + deniz/sur tonları; hero'da skorbord, altta sekmeli fikstür, grup tabloları, final ağacı */
 :root{
@@ -785,6 +785,32 @@ footer a,.flinks a{color:var(--glow)}
 @media print{.page-head,.teamHero,.playerHero,.matchHero{background:none!important;color:#000!important;box-shadow:none;padding:0}
   .page-head .ptitle,.teamHero .ptitle,.playerHero .ptitle{color:#000}.page-head::after,.teamHero::after,.playerHero::after{display:none}
   .gcard header{background:none!important;color:#000}.gcard header .letter{color:#000}#view>*{animation:none}}
+
+/* ===== v7: Alanya ===== */
+.scene{display:block;width:100%;height:clamp(150px,19vw,260px);margin-top:26px}
+.scene .scBlend{fill:var(--bg)}
+.hero::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");background-size:64px 64px;pointer-events:none;
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);mask-image:linear-gradient(180deg,#000,transparent 70%)}
+.hero>*{position:relative}
+.slogan{font-family:"Kaushan Script","Segoe Script","Brush Script MT",cursive;font-size:clamp(1.5rem,3.4vw,2.1rem);color:var(--glow);line-height:1.1;margin-top:10px;transform:rotate(-3deg);transform-origin:left center;text-shadow:0 0 22px color-mix(in srgb,var(--glow) 45%,transparent)}
+.fslogan .slogan{display:inline-block;font-size:1.7rem;margin:0 0 4px}
+.page-head,.teamHero,.playerHero,.matchHero{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Cg fill='%23fff' fill-opacity='.09'%3E%3Cpath d='M22 150l6-92 14-4h36l14 4 6 92z'/%3E%3Cpath d='M24 58l2-14h68l2 14zM28 44V34h8v10zM42 44V34h8v10zM56 44V34h8v10zM70 44V34h8v10zM84 44V34h8v10zM42 34l2-18h32l2 18zM46 16V8h6v8zM57 16V8h6v8zM68 16V8h6v8z'/%3E%3C/g%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.14),transparent 70%),linear-gradient(135deg,var(--night),var(--night-2));
+  background-repeat:no-repeat,repeat,no-repeat,no-repeat;background-position:right 26px bottom -6px,0 0,0 0,0 0;background-size:auto 88%,64px 64px,auto,auto}
+.teamHero{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Cg fill='%23fff' fill-opacity='.09'%3E%3Cpath d='M22 150l6-92 14-4h36l14 4 6 92z'/%3E%3Cpath d='M24 58l2-14h68l2 14zM28 44V34h8v10zM42 44V34h8v10zM56 44V34h8v10zM70 44V34h8v10zM84 44V34h8v10zM42 34l2-18h32l2 18zM46 16V8h6v8zM57 16V8h6v8zM68 16V8h6v8z'/%3E%3C/g%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.12),transparent 70%),linear-gradient(135deg,var(--night) 25%,color-mix(in srgb,var(--g,var(--night-2)) 60%,var(--night)))}
+.matchHero{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(460px 240px at 10% 0,rgba(255,236,170,.16),transparent 70%),radial-gradient(460px 240px at 90% 0,rgba(255,236,170,.16),transparent 70%),linear-gradient(165deg,var(--night),var(--night-2));
+  background-repeat:repeat,no-repeat,no-repeat,no-repeat;background-position:0 0;background-size:64px 64px,auto,auto,auto}
+.page-head::after,.teamHero::after,.playerHero::after{display:none}
+@media (max-width:640px){.page-head,.teamHero,.playerHero{background-size:auto 54%,64px 64px,auto,auto;background-position:right 10px bottom -4px,0 0,0 0,0 0}}
+footer{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(180deg,var(--night),#06121b);background-size:64px 64px,auto;position:relative;padding-top:44px}
+footer::before{content:"";position:absolute;left:0;right:0;top:-1px;height:18px;background:var(--bg);
+  -webkit-mask:radial-gradient(18px 12px at 50% 0,#000 98%,transparent) 0 0/36px 18px repeat-x;mask:radial-gradient(18px 12px at 50% 0,#000 98%,transparent) 0 0/36px 18px repeat-x}
+footer{border-top:0}
+.btn{background:linear-gradient(120deg,#ffc35c,#ff9a3d)}
+.btn.line,.btn.ghost,.btn.warn{background:var(--surface)}
+.btn.ghost,.btn.warn{background:transparent}
+.page-head .btn.line,.teamHero .btn.line,.playerHero .btn.line,.matchHero .btn.line{background:rgba(255,255,255,.08)}
+.subhead::before{background:linear-gradient(var(--accent),#ff9a3d)}
+@media print{.page-head,.teamHero,.playerHero,.matchHero{background-image:none!important}}
 </style>
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <script src="/firebase-config.js"></script>

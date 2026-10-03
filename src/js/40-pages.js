@@ -30,11 +30,66 @@ function liveBarHtml(){
   return `<div class="liveBar"><span class="badge live" style="background:#fff;color:#d7261e">Canlı</span>${live.map(m=>{const r=DATA.matches[m.id];
     return `<a href="/mac/${m.id}">${esc(m.h)} ${r.hs??0}–${r.as??0} ${esc(m.a)}${r.minute?` · ${r.minute}'`:''}</a>`}).join('')}</div>`;
 }
-const SKYLINE=`<svg class="skyline" viewBox="0 0 1200 110" preserveAspectRatio="none" aria-hidden="true">
-  <path class="hill" d="M0 110V88C70 86 130 74 200 66C240 52 268 34 300 30C330 18 360 14 392 20C420 12 446 16 470 30L520 40C580 58 640 70 700 78C740 82 770 84 800 86C900 88 1050 86 1200 88V110Z"/>
-  <path class="wall" d="M296 30h6v-6h6v6h8v-6h6v6h8v-8h6v8h10v-6h6v6h12v-8h6v8h12v-6h6v6h14v-6h6v6"/>
-  <g class="kule"><path d="M738 82V56l6-6h20l6 6v26z"/><path d="M738 56v-6h4v3h4v-3h4v3h4v-3h4v3h4v-3h4v3h4v-3h4v6"/></g>
-  <path class="wave" d="M0 98C40 94 80 102 120 98S200 94 240 98S320 102 360 98S440 94 480 98S560 102 600 98S680 94 720 98S800 102 840 98S920 94 960 98S1040 102 1080 98S1160 94 1200 98V110H0Z"/></svg>`;
+const SKYLINE=`<svg class="scene" viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="scSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f6e7a"/><stop offset="1" stop-color="#0a3d4c"/></linearGradient>
+    <radialGradient id="scMoon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe9b0" stop-opacity=".35"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g fill="#fff">
+    <circle cx="60" cy="40" r="1.2" opacity=".7"/><circle cx="150" cy="78" r=".9" opacity=".5"/><circle cx="230" cy="30" r="1.4" opacity=".8"/><circle cx="320" cy="62" r="1" opacity=".5"/>
+    <circle cx="410" cy="24" r="1.1" opacity=".7"/><circle cx="560" cy="44" r="1.3" opacity=".6"/><circle cx="660" cy="18" r=".9" opacity=".8"/><circle cx="740" cy="70" r="1" opacity=".5"/>
+    <circle cx="830" cy="36" r="1.4" opacity=".7"/><circle cx="930" cy="60" r=".9" opacity=".6"/><circle cx="1010" cy="26" r="1.2" opacity=".8"/><circle cx="1090" cy="84" r="1" opacity=".5"/>
+    <circle cx="1290" cy="40" r="1.1" opacity=".7"/><circle cx="1370" cy="76" r="1.3" opacity=".6"/><circle cx="1410" cy="22" r=".9" opacity=".8"/><circle cx="500" cy="80" r=".8" opacity=".5"/>
+  </g>
+  <circle cx="1180" cy="60" r="70" fill="url(#scMoon)"/>
+  <circle cx="1180" cy="60" r="24" fill="#ffe9b0"/>
+  <!-- Toroslar -->
+  <path d="M0 176 90 124l80 30 90-56 80 44 90-34 90 44 100-32 100 38 100-32 80 26 100-40 100 36 100-42 100 36 140-28V260H0Z" fill="#fff" opacity=".045"/>
+  <path d="M0 200 140 160l120 30 150-44 130 40 160-30 170 44 150-36 160 30 260-34V260H0Z" fill="#fff" opacity=".04"/>
+  <!-- Kale yarımadası -->
+  <path d="M120 234c80-4 130-32 200-62 60-28 100-60 160-74 60-12 120-4 160 16 60 28 100 64 160 88 60 20 120 28 180 32Z" fill="#0b2334"/>
+  <path d="M300 182c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" stroke="#9fbcc4" stroke-opacity=".55" stroke-width="3"/>
+  <path d="M300 178c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" stroke="#9fbcc4" stroke-opacity=".55" stroke-width="5" stroke-dasharray="6 6"/>
+  <path d="M484 96V78h6v-6h6v6h7v-6h6v6h7v-6h6v6h4v18Z" fill="#9fbcc4" fill-opacity=".7"/>
+  <rect x="396" y="118" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/><rect x="606" y="100" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/><rect x="700" y="144" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/>
+  <!-- Palmiyeler -->
+  <g fill="none" stroke="#071925" stroke-linecap="round">
+    <path d="M190 234c2-18 6-28 12-40" stroke-width="5"/>
+    <path d="M202 194c-10-8-22-8-30-2M202 194c-6-12-18-18-28-16M202 194c2-12 10-20 20-22M202 194c10-8 22-8 30-2M202 194c8-2 18 2 24 10M202 194c-8-2-18 2-24 10" stroke-width="3.5"/>
+    <path d="M244 234c0-12 2-20 6-28" stroke-width="4"/>
+    <path d="M250 206c-8-6-16-6-22-2M250 206c-4-9-13-13-20-12M250 206c2-9 8-14 15-16M250 206c8-6 16-6 22-2M250 206c6-1 13 2 17 8" stroke-width="3"/>
+    <path d="M1330 234c-2-16-6-26-12-36" stroke-width="5"/>
+    <path d="M1318 198c10-8 22-8 30-2M1318 198c6-12 18-18 28-16M1318 198c-2-12-10-20-20-22M1318 198c-10-8-22-8-30-2M1318 198c-8-2-18 2-24 10M1318 198c8-2 18 2 24 10" stroke-width="3.5"/>
+  </g>
+  <!-- Deniz -->
+  <rect x="0" y="232" width="1440" height="28" fill="url(#scSea)"/>
+  <g stroke="#ffe9b0" stroke-linecap="round" stroke-width="2" opacity=".4"><path d="M1160 238h40M1150 244h60M1166 250h28"/></g>
+  <g stroke="#fff" stroke-opacity=".14" stroke-width="1.5" fill="none"><path d="M40 240c20-3 40 3 60 0s40 3 60 0M520 244c20-3 40 3 60 0s40 3 60 0M900 248c20-3 40 3 60 0M1280 242c20-3 40 3 60 0s40 3 60 0"/></g>
+  <!-- Kızılkule -->
+  <g>
+    <path d="M820 234l6-78 14-4-2 82z" fill="#a83219"/>
+    <path d="M838 234l2-82h28l2 82z" fill="#d94f2b"/>
+    <path d="M870 234l-2-82 14 4 6 78z" fill="#b53a1e"/>
+    <path d="M822 156l2-12h60l2 12z" fill="#c2452a"/>
+    <path d="M826 144v-8h6v8zM837 144v-8h6v8zM848 144v-8h6v8zM859 144v-8h6v8zM870 144v-8h6v8z" fill="#c2452a"/>
+    <path d="M838 136l2-16h28l2 16z" fill="#cf4a28"/>
+    <path d="M841 120v-6h5v6zM851 120v-6h5v6zM861 120v-6h5v6z" fill="#cf4a28"/>
+    <path d="M851 172h5v12h-5zM851 200h5v12h-5zM829 186h3v10h-3zM877 186h3v10h-3z" fill="#5a1a0c"/>
+    <path d="M854 114V92" stroke="#cfd8dc" stroke-width="1.5"/>
+    <path d="M854 92h18l-4 5 4 5h-18z" fill="#e30a17"/>
+  </g>
+  <!-- Tersane -->
+  <path d="M908 234v-20h100v20z" fill="#1c4256"/>
+  <path d="M913 234v-9a7 7 0 0 1 14 0v9zM932 234v-9a7 7 0 0 1 14 0v9zM951 234v-9a7 7 0 0 1 14 0v9zM970 234v-9a7 7 0 0 1 14 0v9zM989 234v-9a7 7 0 0 1 14 0v9z" fill="#051119"/>
+  <!-- Tekne -->
+  <g>
+    <path d="M1056 238h46l-7 8h-32z" fill="#071925"/>
+    <path d="M1078 238v-26" stroke="#071925" stroke-width="2"/>
+    <path d="M1080 214l16 22h-16z" fill="#fff" fill-opacity=".8"/>
+    <path d="M1076 220l-12 16h12z" fill="#fff" fill-opacity=".55"/>
+  </g>
+  <path class="scBlend" d="M0 252c120-6 240 6 360 0s240-6 360 0 240 6 360 0 240-6 360 0v8H0Z"/>
+</svg>`;
 PAGES.home=()=>{
   let n=0,g=0; everyMatch().forEach(m=>{const s=sc(m.id);if(s){n++;g+=s[0]+s[1];}});
   const done=everyMatch().filter(m=>sc(m.id)).sort(byTime).reverse().slice(0,6);
@@ -47,6 +102,7 @@ PAGES.home=()=>{
       <div class="eyebrow">T.C. Alanya Belediyesi sunar</div>
       <h1><span class="n">1.</span> Alanya<span class="l2">Mahalle Ligi</span></h1>
       <div class="season">Dr. Ali Nazım Köseoğlu Sezonu</div>
+      <div class="slogan">Alanya Bizim Evimiz</div>
       <p class="lede">44 mahalle sahaya çıkıyor. Sekiz grupta oynanan 100 maçın ardından her grubun ilk iki takımı Son 16'ya kalıyor, kupa 1 Aralık'ta sahibini buluyor.</p>
       <div class="facts"><div class="fact"><b class="num">44</b><span>Mahalle</span></div><div class="fact"><b class="num">${n}</b><span>Oynanan maç</span></div><div class="fact"><b class="num">${g}</b><span>Gol</span></div><div class="fact"><b class="num">${n?(g/n).toFixed(1).replace('.',','):'0'}</b><span>Maç başı gol</span></div></div>
       <div class="chipsRow"><div class="live"><i></i>Tüm maçlar TV82 YouTube kanalında canlı</div>${SEA!=null?`<div class="live sea"><i></i>Alanya'da deniz suyu ${SEA.toFixed(1).replace('.',',')}°C</div>`:''}</div>
