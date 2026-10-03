@@ -39,7 +39,7 @@ service cloud.firestore {
       allow create: if isManager()
         && request.resource.data.team == myTeam()
         && request.resource.data.by == request.auth.uid
-        && request.resource.data.type in ['player', 'playerDel', 'team', 'lineup']
+        && request.resource.data.type in ['player', 'playerDel', 'team']
         && smallStr(request.resource.data.key, 120)
         && request.resource.data.data is map;
       allow delete: if isAdmin() || (isManager() && resource.data.team == myTeam());
@@ -51,7 +51,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Oyuncu fotoğrafları ve maç kadroları: yalnızca yönetici yazar (onay sonrası)
+    // Oyuncu fotoğrafları: yalnızca yönetici yazar (onay sonrası)
     match /tphotos/{team} {
       allow read: if true;
       allow write: if isAdmin();
@@ -60,9 +60,14 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    // Maç kadroları onay beklemez: yönetici ya da o takımın hesabı yazar. Kimlik "<maçId>__<takım adı>"
     match /lineups/{lineupId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, update: if (isAdmin() || isManagerOf(request.resource.data.team))
+        && lineupId == request.resource.data.match + '__' + request.resource.data.team
+        && request.resource.data.start is list && request.resource.data.start.size() <= 16
+        && request.resource.data.subs is list && request.resource.data.subs.size() <= 20;
+      allow delete: if isAdmin() || isManagerOf(resource.data.team);
     }
 
     match /sponsors/{sid} {

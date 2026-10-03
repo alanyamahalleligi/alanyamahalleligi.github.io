@@ -253,7 +253,7 @@ function applyRole(){
   const allowed=IS_ADMIN?['maclar','onaylar','kadrolar','oyuncular','takimbilgi','duyurular','haftanin','galeri','sponsorlar','hesaplar','ayarlar']:['oyuncular','kadrolar','takimbilgi'];
   $$('[data-atab]').forEach(b=>b.hidden=!allowed.includes(b.dataset.atab));
   ['#pTeam','#tTeam'].forEach(s=>{const el=$(s);if(MY_TEAM){el.value=MY_TEAM;el.disabled=true;}else el.disabled=false;});
-  $('#pBanWrap').hidden=!IS_ADMIN;$('#lClear').hidden=!IS_ADMIN;pendingNote();
+  $('#pBanWrap').hidden=!IS_ADMIN;pendingNote();
   $('#panelEyebrow').textContent=IS_ADMIN?'Yönetim paneli':'Takım paneli';
   $('#panelTitle').textContent=IS_ADMIN?'Lig yönetimi':`${MY_TEAM} takım paneli`;
   const cur=$$('[data-atab]').find(b=>b.getAttribute('aria-pressed')==='true');
