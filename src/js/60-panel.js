@@ -130,11 +130,17 @@ function accountsList(){
   const reqs=Object.entries(DATA.requests||{}).sort((a,b)=>String(a[1].created).localeCompare(String(b[1].created)));
   const opts=sel=>Object.entries(GROUPS).map(([g,ts])=>`<optgroup label="${g} Grubu">${ts.map(t=>`<option value="${esc(t)}"${t===sel?' selected':''}>${esc(t)}</option>`).join('')}</optgroup>`).join('');
   $('#reqList').innerHTML=reqs.length?reqs.map(([uid,r])=>`<li class="reqRow" style="display:grid"><span><b>${esc(r.name)}</b> · ${esc(r.email)}${r.phone?` · ${esc(r.phone)}`:''}<br><small class="muted">${fmtDate(r.created)} · başvurduğu mahalle: ${esc(r.team)}</small>${r.note?`<br><small>${esc(r.note)}</small>`:''}</span>
-      <span class="row"><select data-reqteam="${uid}" aria-label="Onaylanacak mahalle">${opts(r.team)}</select><button type="button" class="btn sm" data-approve="${uid}">Onayla</button><button type="button" data-reject="${uid}">Reddet</button></span></li>`).join('')
+      <span class="row"><select data-reqteam="${uid}" aria-label="Onaylanacak mahalle"><option value="">Mahalle seçin</option>${opts(TEAM_G[r.team]?r.team:'')}</select><button type="button" class="btn sm" data-approve="${uid}">Takım hesabı yap</button>${IS_OWNER?`<button type="button" class="btn ghost sm" data-mkadmin="${uid}">Yönetici yap</button>`:''}<button type="button" data-reject="${uid}">Reddet</button></span></li>`).join('')
     :'<li><span class="muted">Bekleyen başvuru yok.</span></li>';
   const mgrs=Object.entries(DATA.managers||{}).sort((a,b)=>a[1].team.localeCompare(b[1].team,'tr'));
   $('#mgrList').innerHTML=mgrs.length?mgrs.map(([uid,m])=>`<li><span><b>${esc(m.team)}</b> · ${esc(m.name||'')} <small class="muted">${esc(m.email||'')}</small></span><button type="button" data-unmgr="${uid}">Yetkiyi kaldır</button></li>`).join('')
     :'<li><span class="muted">Henüz onaylı takım hesabı yok.</span></li>';
+  $('#admBox').hidden=!IS_OWNER;
+  if(IS_OWNER){
+    const adm=Object.entries(DATA.admins||{}).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),'tr'));
+    $('#admList').innerHTML=`<li><span><b>${esc(window.AML_AUTH?.user?.email||'Siz')}</b> <small class="muted">ana yönetici</small></span></li>`
+      +adm.map(([uid,a])=>`<li><span><b>${esc(a.name||'')}</b> <small class="muted">${esc(a.email||'')} · ${fmtDate(a.added)}</small></span><button type="button" data-unadmin="${uid}">Yetkiyi kaldır</button></li>`).join('');
+  }
 }
 function updateAdminBadge(){
   const n=IS_ADMIN?Object.keys(DATA.requests||{}).length:0, pn=IS_ADMIN?Object.keys(DATA.pending||{}).length:0;
@@ -322,10 +328,18 @@ function initPanel(){
   $('#tSave').addEventListener('click',saveTeamInfo);
   $('[data-apane="hesaplar"]').addEventListener('click',async e=>{
     const ap=e.target.closest('[data-approve]');
-    if(ap){const uid=ap.dataset.approve,r=DATA.requests[uid],t=$(`[data-reqteam="${uid}"]`).value;ap.disabled=true;
+    if(ap){const uid=ap.dataset.approve,r=DATA.requests[uid],t=$(`[data-reqteam="${uid}"]`).value;if(!t){toast('Önce hangi mahalleyi yöneteceğini seçin.');return;}ap.disabled=true;
       try{await DB.collection('managers').doc(uid).set({team:t,name:r.name,email:r.email,approved:new Date().toISOString()});
         await DB.collection('requests').doc(uid).delete();toast(`${r.name} artık ${t} takımını yönetebilir`);}
       catch(x){toast(errMsg(x));ap.disabled=false;}return;}
+    const mk=e.target.closest('[data-mkadmin]');
+    if(mk){if(!armed(mk,'Yönetici yap'))return;const uid=mk.dataset.mkadmin,r=DATA.requests[uid];
+      try{await DB.collection('admins').doc(uid).set({name:r.name,email:r.email,added:new Date().toISOString()});
+        await DB.collection('requests').doc(uid).delete();toast(`${r.name} artık yönetici`);}
+      catch(x){toast(errMsg(x));}return;}
+    const ua=e.target.closest('[data-unadmin]');
+    if(ua){if(!armed(ua,'Yetkiyi kaldır'))return;
+      try{await DB.collection('admins').doc(ua.dataset.unadmin).delete();toast('Yönetici yetkisi kaldırıldı');}catch(x){toast(errMsg(x));}return;}
     const rj=e.target.closest('[data-reject]');
     if(rj){if(!rj.classList.contains('arm')){rj.classList.add('arm');rj.textContent='Emin misiniz?';setTimeout(()=>{rj.classList.remove('arm');rj.textContent='Reddet'},4000);return;}
       try{await DB.collection('requests').doc(rj.dataset.reject).delete();toast('Başvuru reddedildi');}catch(x){toast(errMsg(x));}return;}
@@ -338,7 +352,7 @@ function initPanel(){
 }
 function setRole(role){
   if(window.AML_SIGNING&&!role.admin&&!role.team&&!role.pending) return;
-  IS_ADMIN=!!role.admin; MY_TEAM=role.team||null; PENDING=role.pending||null;
+  IS_ADMIN=!!role.admin; IS_OWNER=!!role.owner; MY_TEAM=role.team||null; PENDING=role.pending||null;
   const u=window.AML_AUTH?.user&&!window.AML_AUTH.user.isAnonymous?window.AML_AUTH.user:null;
   $('#adminBtnLbl').textContent=IS_ADMIN?'Yönetim':MY_TEAM?'Takım paneli':u?'Hesabım':'Giriş';
   $('#adminBtn').classList.toggle('on',PANEL_ON());
@@ -353,7 +367,7 @@ function setRole(role){
   ROLE_KNOWN=true;
   render();
 }
-const teamSelectHtml=(id,sel)=>`<select id="${id}" required><option value="">Mahalle seçin</option>${Object.entries(GROUPS).map(([g,ts])=>`<optgroup label="${g} Grubu">${ts.map(t=>`<option value="${esc(t)}"${t===sel?' selected':''}>${esc(t)}</option>`).join('')}</optgroup>`).join('')}</select>`;
+const teamSelectHtml=(id,sel)=>`<select id="${id}" required><option value="">Mahalle seçin</option><option value="Lig yönetimi">Lig yönetimi (takım değil, yönetici başvurusu)</option>${Object.entries(GROUPS).map(([g,ts])=>`<optgroup label="${g} Grubu">${ts.map(t=>`<option value="${esc(t)}"${t===sel?' selected':''}>${esc(t)}</option>`).join('')}</optgroup>`).join('')}</select>`;
 let gateTab='login';
 function openAdmin(){navigate(PANEL_ON()?'/yonetim':'/giris');}
 function renderGate(){
@@ -362,7 +376,7 @@ function renderGate(){
   if(A.user&&!A.user.isAnonymous&&PANEL_ON()){g.innerHTML=`<h3>Giriş yapıldı</h3><p>${esc(A.user.email||'')} hesabıyla giriş yaptınız.</p><div class="row" style="margin-top:12px"><a class="btn" href="/yonetim">${IS_ADMIN?'Yönetim paneline git':'Takım paneline git'}</a><button type="button" class="btn ghost" id="gLogout">Çıkış yap</button></div>`;return;}
   if(A.user&&A.user.isAnonymous){/* taraftar oturumu: giriş formunu göster */}
   else if(A.user&&PENDING){
-    g.innerHTML=`<h3>Başvurunuz inceleniyor</h3><p><b>${esc(PENDING.team)}</b> takım hesabı için başvurunuz lig yönetimine ulaştı. Onaylandığında bu sayfayı yenilediğinizde takım paneliniz açılacak.</p>
+    g.innerHTML=`<h3>Başvurunuz inceleniyor</h3><p>${PENDING.team==='Lig yönetimi'?'<b>Yönetici</b> başvurunuz ana yöneticiye ulaştı. Onaylandığında bu sayfayı yenilediğinizde yönetim paneliniz açılacak.':`<b>${esc(PENDING.team)}</b> takım hesabı için başvurunuz lig yönetimine ulaştı. Onaylandığında bu sayfayı yenilediğinizde takım paneliniz açılacak.`}</p>
       <p class="hint" style="margin-top:8px">${esc(A.user.email||'')}</p><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" id="gLogout">Çıkış yap</button></div>`;
     return;
   }

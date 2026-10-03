@@ -2,9 +2,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Yönetici hesaplarının UID'leri: public/firebase-config.js içindeki "admins" listesiyle aynı tutun
-    function isAdmin() {
+    // Ana yönetici: yönetici ekleyip çıkarabilen tek hesap (public/firebase-config.js "admins" ile aynı)
+    function isOwner() {
       return request.auth != null
         && request.auth.uid in ['VP4mUdPWc0R0wQEkPvRHTa3YDR42'];
+    }
+    // Yönetici: ana yönetici ya da admins koleksiyonunda kaydı olan hesap
+    function isAdmin() {
+      return isOwner()
+        || (request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
     }
     function signedIn() { return request.auth != null; }
     function managerDoc() {
@@ -120,6 +126,12 @@ service cloud.firestore {
             || (request.resource.data.p.diff(resource.data.p).affectedKeys().hasOnly([request.resource.data.k])
                 && beforeKickoff(request.resource.data.k)));
       allow delete: if isAdmin();
+    }
+
+    // Ek yöneticiler: yalnızca ana yönetici ekler ve çıkarır
+    match /admins/{uid} {
+      allow read: if isOwner() || (signedIn() && request.auth.uid == uid);
+      allow write: if isOwner();
     }
 
     match /managers/{uid} {

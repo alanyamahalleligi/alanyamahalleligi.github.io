@@ -41,14 +41,17 @@ if(!C.firebase||!C.firebase.apiKey){
       if(FAN&&(!u||FAN.uid!==u.uid)) FAN=null;
       let role={admin:false,team:null,pending:null};
       if(u&&!u.isAnonymous){
-        if(admins.includes(u.uid)) role.admin=true;
+        if(admins.includes(u.uid)){role.admin=true;role.owner=true;}
         else{
+          try{if(await DB.get('admins',u.uid))role.admin=true;}catch(e){}
+        }
+        if(!role.admin){
           try{const m=await DB.get('managers',u.uid);if(m&&TEAM_G[m.team])role.team=m.team;}catch(e){}
           if(!role.team){try{role.pending=await DB.get('requests',u.uid);}catch(e){}}
         }
       }
       if(role.admin){
-        ['requests','managers','pending'].forEach(k=>adminSubs.push(DB.collection(k).onSnapshot(s=>{DATA[k]=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));if(panelReady){accountsList();approvalsList();}updateAdminBadge();},()=>{})));
+        ['requests','managers','pending',...(role.owner?['admins']:[])].forEach(k=>adminSubs.push(DB.collection(k).onSnapshot(s=>{DATA[k]=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));if(panelReady){accountsList();approvalsList();}updateAdminBadge();},()=>{})));
       }
       if(u) loadFan();
       setRole(role);
