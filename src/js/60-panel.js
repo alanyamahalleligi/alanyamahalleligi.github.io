@@ -174,6 +174,7 @@ async function onSavePlayer(){
   const name=$('#pName').value.trim(); if(!name){toast('Oyuncunun adını yazın.');$('#pName').focus();return;}
   const tname=$('#pTeam').value, old=editPlayer?DATA.players[editPlayer]:null;
   const no=parseInt($('#pNo').value,10)||null;
+  if($('#pNo').value.trim()!==''&&(!no||no<1||no>99)){toast('Forma numarası 1 ile 99 arasında olmalı.');$('#pNo').focus();return;}
   if(no&&squadOf(tname).some(([id,p])=>p.no===no&&id!==editPlayer)){toast(`${no} numara bu takımda başka bir oyuncuda. Farklı numara seçin.`);return;}
   const body={team:tname,name,no,pos:$('#pPos').value,ban:IS_ADMIN?$('#pBan').value.trim():(old?.ban||'')};
   const b=$('#pAdd');b.disabled=true;
@@ -203,7 +204,7 @@ async function onBulk(){
   if(!lines.length){toast('Listeye en az bir oyuncu yazın.');return;}
   const b=$('#pBulkAdd');b.disabled=true;let n=0;
   try{for(const ln of lines){const m=ln.match(/^(\d{1,2})[\s.\-)]+(.+)$/);
-      const nm=(m?m[2]:ln).trim().slice(0,60), nn=m?+m[1]:null;
+      const nm=(m?m[2]:ln).trim().slice(0,60), nn=m&&+m[1]>=1&&+m[1]<=99?+m[1]:null;
       if(IS_ADMIN) await DB.aggSetK('players','p',DB.newId(),{team:$('#pTeam').value,name:nm,no:nn,pos:'',ban:''});
       else await DB.collection('pending').add({type:'player',key:DB.newId(),data:{name:nm,no:nn,pos:'',photo:'keep'},team:MY_TEAM,by:window.AML_AUTH.user.uid,at:new Date().toISOString()});
       n++;}
