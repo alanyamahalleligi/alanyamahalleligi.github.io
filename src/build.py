@@ -7,8 +7,8 @@ parts = sorted(glob.glob(os.path.join(S, 'js', '*.js')))
 app = ''.join(open(p, encoding='utf-8').read() + '\n' for p in parts)
 mod = R('module.js')
 out = R('head.html') + R('body.html') + '\n<script>\n' + app + '</script>\n<script type="module">\n' + mod + R('tail.html')
-for name in ('index.html', '404.html'):
-    open(os.path.join(S, '..', name), 'w', encoding='utf-8').write(out)
+for name in ('index.html',):
+    open(os.path.join(S, '..', 'public', name), 'w', encoding='utf-8').write(out)
 try:
     import quickjs
     c = quickjs.Context()

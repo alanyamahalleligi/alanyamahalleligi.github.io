@@ -163,7 +163,7 @@ function icsEnd(d,t){
 }
 function downloadIcs(ms,name){
   const ev=ms.map(m=>{const r=DATA.matches[m.id]||{};
-    return ['BEGIN:VEVENT',`UID:${m.id}@alanyamahalleligi.github.io`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').slice(0,15)}Z`,
+    return ['BEGIN:VEVENT',`UID:${m.id}@alanyamahalleligi.web.app`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').slice(0,15)}Z`,
       `DTSTART${icsDate(m.d,m.t)}`,`DTEND${icsEnd(m.d,m.t)}`,`SUMMARY:${hName(m)} - ${aName(m)} (Alanya Mahalle Ligi)`,
       r.venue?`LOCATION:${r.venue.replace(/[,;]/g,' ')}`:'',`DESCRIPTION:${mLabel(m)} - TV82 YouTube kanalında canlı`,
       `URL:${location.origin}/mac/${m.id}`,'END:VEVENT'].filter(Boolean).join('\r\n')});

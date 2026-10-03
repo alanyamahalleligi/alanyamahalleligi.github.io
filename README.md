@@ -1,15 +1,20 @@
 # 1. Alanya Mahalle Ligi
 
-Dr. Ali Nazım Köseoğlu Sezonu web sitesi: gruplar, canlı puan durumu, fikstür, gol ve asist krallığı, kart istatistikleri, takım kadroları, final yolu ve yönetici paneli.
+Dr. Ali Nazım Köseoğlu Sezonu web sitesi: **https://alanyamahalleligi.web.app**
 
-Site tek bir `index.html` dosyasıdır (kaynak parçaları `src/` ve `src/js/` altında; düzenledikten sonra `python src/build.py` ile `index.html` ve `404.html` üretilir — `404.html`, GitHub Pages'te `/fikstur`, `/takim/alara` gibi sayfa adreslerinin açılmasını sağlar) ve GitHub Pages'te çalışır. Sonuçlar ve oyuncular Firebase Firestore'da tutulur; yönetici girişi Firebase Authentication (e-posta + şifre) ile yapılır.
+Site Firebase Hosting'de yayınlanır; veriler Firestore'da, girişler Firebase Authentication'dadır. Bu repodaki kök `index.html` ve `404.html`, eski `alanyamahalleligi.github.io` adresini yeni adrese yönlendirir.
+
+## Geliştirme ve yayın
+
+1. Kaynak parçaları `src/` ve `src/js/` altındadır. Düzenledikten sonra `python src/build.py` çalıştırın; `public/index.html` üretilir.
+2. `firebase deploy --only hosting` siteyi yayınlar. Kurallar değiştiyse `firebase deploy --only firestore:rules`.
 
 ## Dosyalar
 
 | Dosya | Görevi |
 |---|---|
-| `index.html` | Sitenin tamamı |
-| `firebase-config.js` | Firebase bağlantı ayarları ve yönetici e-postaları |
+| `public/index.html` | Sitenin tamamı (üretilir) |
+| `public/firebase-config.js` | Firebase bağlantı ayarları ve yönetici e-postaları |
 | `firestore.rules` | Veritabanı güvenlik kuralları (herkes okur, sadece yönetici yazar) |
 
 ## Firebase kurulumu (bir kez, ~5 dakika)
@@ -22,10 +27,6 @@ Site tek bir `index.html` dosyasıdır (kaynak parçaları `src/` ve `src/js/` a
 6. **Authentication > Settings > User actions** altında **Enable create (sign-up)** seçeneğini kapatın; böylece siteden kimse yeni hesap açamaz.
 7. **Authentication > Settings > Authorized domains** listesine `KULLANICI-ADI.github.io` adresini ekleyin.
 8. **Proje ayarları > Genel > Uygulamalarınız > Web (</>)** ile bir web uygulaması ekleyin, verilen `firebaseConfig` değerlerini `firebase-config.js` dosyasına yapıştırın ve `admins` listesine aynı yönetici e-postalarını yazın.
-
-## GitHub Pages
-
-Repo ayarlarında **Settings > Pages > Source: Deploy from a branch**, branch `main`, klasör `/ (root)` seçin. Site birkaç dakika içinde `https://KULLANICI-ADI.github.io/REPO-ADI/` adresinde yayına girer.
 
 ## Veri modeli
 
