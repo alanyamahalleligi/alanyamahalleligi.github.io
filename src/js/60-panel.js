@@ -389,7 +389,7 @@ function renderGate(){
     g.innerHTML=`<h3>Takım hesabı oluştur</h3><p>Mahallenizin kadrosunu, forma numaralarını, mevkilerini ve fotoğraflarını siz girin. Hesabınız lig yönetimi onayladıktan sonra açılır.</p>${tabs}
       <form id="signupForm" novalidate>
         <label class="fld"><span>Ad soyad</span><input id="sName" type="text" maxlength="60" autocomplete="name" required></label>
-        <label class="fld"><span>Temsil ettiğiniz mahalle</span>${teamSelectHtml('sTeam',$('#teamSel').value)}</label>
+        <label class="fld"><span>Temsil ettiğiniz mahalle</span>${teamSelectHtml('sTeam',followed()[0]||'')}</label>
         <label class="fld"><span>E-posta</span><input id="sEmail" type="email" autocomplete="email" required></label>
         <label class="fld"><span>Şifre (en az 6 karakter)</span><input id="sPass" type="password" autocomplete="new-password" minlength="6" required></label>
         <label class="fld"><span>Telefon (isteğe bağlı)</span><input id="sPhone" type="tel" maxlength="20" autocomplete="tel"></label>

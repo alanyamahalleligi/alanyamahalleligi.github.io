@@ -2497,7 +2497,7 @@ function renderGate(){
     g.innerHTML=`<h3>Takım hesabı oluştur</h3><p>Mahallenizin kadrosunu, forma numaralarını, mevkilerini ve fotoğraflarını siz girin. Hesabınız lig yönetimi onayladıktan sonra açılır.</p>${tabs}
       <form id="signupForm" novalidate>
         <label class="fld"><span>Ad soyad</span><input id="sName" type="text" maxlength="60" autocomplete="name" required></label>
-        <label class="fld"><span>Temsil ettiğiniz mahalle</span>${teamSelectHtml('sTeam',$('#teamSel').value)}</label>
+        <label class="fld"><span>Temsil ettiğiniz mahalle</span>${teamSelectHtml('sTeam',followed()[0]||'')}</label>
         <label class="fld"><span>E-posta</span><input id="sEmail" type="email" autocomplete="email" required></label>
         <label class="fld"><span>Şifre (en az 6 karakter)</span><input id="sPass" type="password" autocomplete="new-password" minlength="6" required></label>
         <label class="fld"><span>Telefon (isteğe bağlı)</span><input id="sPhone" type="tel" maxlength="20" autocomplete="tel"></label>
@@ -2863,22 +2863,26 @@ function render(){
   const showPanel=CUR.key==='yonetim'&&PANEL_ON();
   panel.hidden=!showPanel;
   view.hidden=showPanel;
-  if(!showPanel) view.innerHTML=(PAGES[CUR.key]||PAGES.notfound)(...CUR.args);
+  const keepGate=CUR.key==='giris'&&$('#gate form')&&viewDirty();   // giriş/başvuru formu doldurulurken silme
+  if(!showPanel&&!keepGate) view.innerHTML=(PAGES[CUR.key]||PAGES.notfound)(...CUR.args);
   document.title=CUR.key==='home'?'Alanya Mahalle Ligi':`${CUR.title} · Alanya Mahalle Ligi`;
   $$('nav.links a').forEach(a=>{const on=CUR.path===a.getAttribute('href')||CUR.path.startsWith(a.getAttribute('href')+'/')||(a.getAttribute('href')==='/gruplar'&&CUR.key==='grup')||(a.getAttribute('href')==='/takimlar'&&(CUR.key==='takim'||CUR.key==='oyuncu'))||(a.getAttribute('href')==='/duyurular'&&CUR.key==='duyuru')||(a.getAttribute('href')==='/fikstur'&&CUR.key==='mac');a.toggleAttribute('aria-current',on);if(on)a.setAttribute('aria-current','page');});
-  if(CUR.key==='giris') renderGate();
+  if(CUR.key==='giris'&&!keepGate) renderGate();
   if(showPanel&&panelReady){if(IS_ADMIN){adminSides();renderDraft();newsAdminList();accountsList();}playerList();}
 }
 let renderT=null, renderPending=false;
+// Sayfadaki bir alana yazılmış ama henüz kaydedilmemiş bir şey var mı?
+const viewDirty=()=>[...$('#view').querySelectorAll('input:not([type=file]):not([type=search]),textarea')].some(i=>i.value!==i.defaultValue);
 function scheduleRender(){
   clearTimeout(renderT);
   renderT=setTimeout(()=>{
     const a=document.activeElement;
     if(a&&$('#view').contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)){renderPending=true;return;}
+    if(viewDirty()) return;   // kaydedilmemiş yazı varken arka plan güncellemesi sayfayı yeniden çizmesin
     renderPending=false; render();
   },40);
 }
-document.addEventListener('focusout',()=>{if(renderPending)setTimeout(()=>{const a=document.activeElement;if(!(a&&$('#view').contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))){renderPending=false;render();}},150);});
+document.addEventListener('focusout',()=>{if(renderPending)setTimeout(()=>{const a=document.activeElement;if(!(a&&$('#view').contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))&&!viewDirty()){renderPending=false;render();}},150);});
 function navigate(path,replace){
   closeSearch();
   if(path!==location.pathname){replace?history.replaceState(null,'',path):history.pushState(null,'',path);}
