@@ -1,6 +1,6 @@
 /* ===================== Taraftar özellikleri ===================== */
 const LINEUPS={}, VOTES={};
-let FAN=null, FANS=null, FANS_AT=0, GALLERY=null;
+let FAN=null, GALLERY=null, GAL_LAST=null, GAL_MORE=false;
 const myUid=()=>window.AML_AUTH?.user?.uid||null;
 async function ensureFan(){
   const A=window.AML_AUTH; if(!A) throw new Error('offline');
@@ -25,9 +25,9 @@ async function loadVotes(id){
   if(!DB||VOTES[id]==='loading') return;
   VOTES[id]='loading';
   try{
-    const rows=await DB.where('mvpvotes','match',id), counts={}; let mine=null; const uid=myUid();
-    rows.forEach(([vid,v])=>{counts[v.player]=(counts[v.player]||0)+1;if(uid&&vid===`${id}__${uid}`)mine=v.player;});
-    VOTES[id]={counts,mine,total:rows.length}; scheduleRender();
+    const d=await DB.get('mvpvotes',id), v=(d&&d.v)||{}, counts={}; const uid=myUid();
+    Object.values(v).forEach(pid=>{counts[pid]=(counts[pid]||0)+1});
+    VOTES[id]={counts,mine:uid?v[uid]||null:null,total:Object.keys(v).length}; scheduleRender();
   }catch(e){delete VOTES[id];}
 }
 const predPts=(p,s)=>!p||!s?null:(p[0]===s[0]&&p[1]===s[1])?3:(Math.sign(p[0]-p[1])===Math.sign(s[0]-s[1]))?1:0;
@@ -102,13 +102,11 @@ PAGES.mac=(id)=>{
 /* ---------- Tahmin oyunu ---------- */
 PAGES.tahmin=()=>{
   if(myUid()&&!FAN) loadFan();
-  if(!FANS||Date.now()-FANS_AT>60000) loadFans();
   const upcoming=everyMatch().filter(m=>hName(m)&&aName(m)&&status(m.id)===''&&kickoff(m)>new Date()).sort(byTime);
   const days=[...new Set(upcoming.map(m=>m.d))].slice(0,3);
   const mine=FAN?Object.entries(FAN.p).map(([mid,p])=>{const m=matchInfo(mid);return m?{m,p,pts:predPts(p,sc(mid))}:null}).filter(Boolean).sort((a,b)=>byTime(b.m,a.m)):[];
   const total=mine.reduce((s,x)=>s+(x.pts||0),0);
-  const board=(FANS||[]).map(f=>{let pts=0,exact=0,n=0;for(const[mid,p] of Object.entries(f.p||{})){const x=predPts(p,sc(mid));if(x!=null){pts+=x;n++;if(x===3)exact++;}}return {...f,pts,exact,n}})
-    .filter(f=>f.n>0).sort((a,b)=>b.pts-a.pts||b.exact-a.exact||a.nick.localeCompare(b.nick,'tr')).slice(0,50);
+  const board=BOARD;
   return `<div class="wrap page">${pageHead('Taraftar oyunu','Tahmin oyunu','Maç skorlarını önceden tahmin et. Tam skor 3 puan, doğru sonuç 1 puan. Tahminler maç başlayınca kilitlenir.')}
   <div class="twoCol">
     <div>
@@ -124,19 +122,23 @@ PAGES.tahmin=()=>{
         ${mine.length?`<div class="panel">${mine.map(x=>{const s=sc(x.m.id);return `<a class="res" href="/mac/${x.m.id}" style="grid-template-columns:4.8rem minmax(0,1fr) auto"><span class="d">${fmt(x.m.d).dm}</span><span>${esc(x.m.h)} – ${esc(x.m.a)} <small class="muted">tahmin ${x.p.join('–')}${s?` · sonuç ${s.join('–')}`:''}</small></span><b class="${x.pts===3?'pt3':x.pts===1?'pt1':''}">${x.pts==null?'bekliyor':x.pts+' puan'}</b></a>`}).join('')}</div>`:'<p class="hint">Henüz tahmin yapmadın.</p>'}`:''}
     </div>
     <div><h2 class="subhead">Sıralama</h2>
-      <article class="lcard">${board.length?`<ol>${board.map((f,i)=>`<li${f.uid===myUid()?' class="me"':''}><span class="rk">${i+1}</span><span class="nm">${esc(f.nick)}<small>${f.n} tahmin · ${f.exact} tam skor</small></span><span class="c">${f.pts}</span></li>`).join('')}</ol>`:`<div class="none">${FANS?'Sonuçlanan maç olunca sıralama oluşacak.':'Yükleniyor…'}</div>`}</article></div>
+      <article class="lcard">${board.length?`<ol>${board.map((f,i)=>`<li${f.uid===myUid()?' class="me"':''}><span class="rk">${i+1}</span><span class="nm">${esc(f.nick)}<small>${f.n} tahmin · ${f.exact} tam skor</small></span><span class="c">${f.pts}</span></li>`).join('')}</ol>`:`<div class="none">Sonuçlanan maç olunca sıralama oluşacak.</div>`}</article>${BOARD_AT?`<p class="hint" style="margin-top:8px">Sıralama her maç sonucu girildiğinde güncellenir. Son güncelleme: ${fmtDate(BOARD_AT)}</p>`:''}</div>
   </div></div>`;
 };
-async function loadFans(){
-  if(!DB) return; FANS_AT=Date.now();
-  try{FANS=(await DB.list('fans')).map(([uid,d])=>({uid,nick:d.nick||'?',p:d.p||{}}));scheduleRender();}catch(e){}
+// Sıralamayı yönetici hesaplar ve agg/board belgesine yazar; ziyaretçiler yalnızca o belgeyi okur.
+async function rebuildBoard(){
+  if(!IS_ADMIN) return;
+  const fans=await DB.list('fans');
+  const top=fans.map(([uid,f])=>{let pts=0,exact=0,n=0;for(const[mid,p] of Object.entries(f.p||{})){const x=predPts(p,sc(mid));if(x!=null){pts+=x;n++;if(x===3)exact++;}}return {uid,nick:f.nick||'?',pts,exact,n}})
+    .filter(f=>f.n>0).sort((a,b)=>b.pts-a.pts||b.exact-a.exact||a.nick.localeCompare(b.nick,'tr')).slice(0,50);
+  await DB.collection('agg').doc('board').set({top,updated:new Date().toISOString()});
 }
 async function saveNick(){
   const nick=$('#nickIn').value.trim();
   if(nick.length<2){toast('Takma ad en az 2 karakter olmalı.');return;}
   try{const uid=await ensureFan();await loadFan();
     await DB.collection('fans').doc(uid).set({nick,p:FAN?.p||{},updated:new Date().toISOString()});
-    FAN={uid,nick,p:FAN?.p||{}};toast('Takma adın kaydedildi');FANS_AT=0;render();}
+    FAN={uid,nick,p:FAN?.p||{}};toast('Takma adın kaydedildi');render();}
   catch(e){toast('Kaydedilemedi. Bağlantını kontrol edip tekrar dene.');}
 }
 async function savePred(mid){
@@ -146,14 +148,14 @@ async function savePred(mid){
   const m=matchInfo(mid); if(kickoff(m)<=new Date()){toast('Bu maç başladı, tahmin kapandı.');return;}
   try{const uid=await ensureFan();
     const p={...(FAN?.p||{}),[mid]:[Math.min(20,Math.max(0,+h)),Math.min(20,Math.max(0,+a))]};
-    await DB.collection('fans').doc(uid).set({nick:FAN.nick,p,updated:new Date().toISOString()});
-    FAN.p=p;toast(`Tahmin kaydedildi: ${m.h} ${p[mid][0]}–${p[mid][1]} ${m.a}`);FANS_AT=0;render();}
+    await DB.collection('fans').doc(uid).set({nick:FAN.nick,p,k:mid,updated:new Date().toISOString()});
+    FAN.p=p;toast(`Tahmin kaydedildi: ${m.h} ${p[mid][0]}–${p[mid][1]} ${m.a}`);render();}
   catch(e){toast(e&&e.code==='permission-denied'?'Bu maç için tahmin süresi doldu.':'Kaydedilemedi. Tekrar dene.');}
 }
 async function castVote(mid){
   const pid=$('#voteSel').value; if(!pid) return;
   try{const uid=await ensureFan();
-    await DB.collection('mvpvotes').doc(`${mid}__${uid}`).set({match:mid,player:pid,at:new Date().toISOString()});
+    await DB.merge('mvpvotes',mid,{v:{[uid]:pid}});
     delete VOTES[mid];toast('Oyun kaydedildi');loadVotes(mid);}
   catch(e){toast('Oy kaydedilemedi. Tekrar dene.');}
 }
@@ -180,7 +182,7 @@ PAGES.haftanin=()=>{
 let galAlbum='';
 async function loadGallery(){
   if(!DB||GALLERY==='loading') return; GALLERY='loading';
-  try{GALLERY=(await DB.list('gallery')).sort((a,b)=>String(b[1].date).localeCompare(String(a[1].date)));}catch(e){GALLERY='error';}scheduleRender();
+  try{const r=await DB.page('gallery','date',24,null);GALLERY=r.rows;GAL_LAST=r.last;GAL_MORE=r.more;}catch(e){GALLERY='error';}scheduleRender();
 }
 PAGES.galeri=()=>{
   if(GALLERY==null) loadGallery();
@@ -189,8 +191,12 @@ PAGES.galeri=()=>{
   const shownL=list.filter(([,g])=>!galAlbum||(g.album||'Genel')===galAlbum);
   return `<div class="wrap page">${pageHead('Sahadan kareler','Galeri')}
   ${albums.length>1?`<div class="tabs no-print" style="margin-bottom:18px"><button type="button" data-album="" aria-pressed="${!galAlbum}">Tümü</button>${albums.map(a=>`<button type="button" data-album="${esc(a)}" aria-pressed="${galAlbum===a}">${esc(a)}</button>`).join('')}</div>`:''}
-  ${GALLERY==='error'?'<div class="empty">Fotoğraflar yüklenemedi. <button type="button" class="btn sm line" data-galretry>Tekrar dene</button></div>':GALLERY==='loading'||GALLERY==null?'<div class="empty">Yükleniyor…</div>':shownL.length?`<div class="gallery">${shownL.map(([id,g])=>`<button type="button" class="gthumb" data-photo="${id}"><img src="${g.thumb}" alt="${esc(g.caption||'Maç fotoğrafı')}" loading="lazy">${g.caption?`<span>${esc(g.caption)}</span>`:''}</button>`).join('')}</div>`:'<div class="empty">Henüz fotoğraf eklenmedi.</div>'}</div>`;
+  ${GALLERY==='error'?'<div class="empty">Fotoğraflar yüklenemedi. <button type="button" class="btn sm line" data-galretry>Tekrar dene</button></div>':GALLERY==='loading'||GALLERY==null?'<div class="empty">Yükleniyor…</div>':shownL.length?`<div class="gallery">${shownL.map(([id,g])=>`<button type="button" class="gthumb" data-photo="${id}"><img src="${g.thumb}" alt="${esc(g.caption||'Maç fotoğrafı')}" loading="lazy">${g.caption?`<span>${esc(g.caption)}</span>`:''}</button>`).join('')}</div>${GAL_MORE?'<div class="row no-print" style="justify-content:center;margin-top:18px"><button type="button" class="btn line" data-galmore>Daha fazla göster</button></div>':''}`:'<div class="empty">Henüz fotoğraf eklenmedi.</div>'}</div>`;
 };
+async function moreGallery(){
+  if(!GAL_MORE||!Array.isArray(GALLERY)) return;
+  try{const r=await DB.page('gallery','date',24,GAL_LAST);GALLERY=GALLERY.concat(r.rows);GAL_LAST=r.last;GAL_MORE=r.more;render();}catch(e){toast('Fotoğraflar yüklenemedi. Tekrar deneyin.');}
+}
 async function openPhoto(id){
   const g=(Array.isArray(GALLERY)?GALLERY:[]).find(x=>x[0]===id)?.[1]; if(!g) return;
   const d=$('#lightbox');

@@ -94,6 +94,7 @@ document.addEventListener('click',async e=>{
   if(el=q('[data-album]')){galAlbum=el.dataset.album;render();return;}
   if(el=q('[data-photo]')){openPhoto(el.dataset.photo);return;}
   if(el=q('[data-galretry]')){GALLERY=null;render();return;}
+  if(el=q('[data-galmore]')){moreGallery();return;}
   if(el=q('[data-ssort]')){const k=el.dataset.ssort;statSort.dir=statSort.k===k?-statSort.dir:(k==='t'?1:-1);statSort.k=k;render();return;}
   if(el=q('[data-close]')){closeLightbox();return;}
   if(el=q('[data-sclose]')){closeSearch();return;}

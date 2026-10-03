@@ -118,21 +118,21 @@ function suspensions(){
 const activeBans=()=>suspensions().filter(s=>s.manual||!s.served);
 
 /* ===================== Fotoğraflar ===================== */
-function avatar(pid,name,cls=''){const src=PHOTOS[pid];return src?`<img class="av ${cls}" src="${src}" alt="" loading="lazy">`:`<span class="av ${cls}" aria-hidden="true">${esc(initials(name))}</span>`}
+function avatar(pid,name,cls=''){const src=cls==='xl'?(PHOTO_FULL[pid]||PHOTOS[pid]):PHOTOS[pid];return src?`<img class="av ${cls}" src="${src}" alt="" loading="lazy">`:`<span class="av ${cls}" aria-hidden="true">${esc(initials(name))}</span>`}
 function teamBadge(t,cls=''){const lg=LOGOS[slug(t)],g=TEAM_G[t]||'';return lg?`<img class="tbadge ${cls}" src="${lg}" alt="">`:`<span class="tbadge gp ${cls}" data-g="${g}">${esc(initials(t))}</span>`}
 async function loadMedia(t){
   if(!DB||!t||MEDIA[t]) return; MEDIA[t]='loading';
   try{
-    const [ph,lg]=await Promise.all([DB.where('photos','team',t),DB.get('logos',slug(t))]);
-    ph.forEach(([id,d])=>{PHOTOS[id]=d.data}); if(lg) LOGOS[slug(t)]=lg.data;
+    const d=await DB.get('tphotos',t);   // takımın bütün küçük fotoğrafları tek belgede
+    if(d&&d.p) Object.assign(PHOTOS,d.p);
     MEDIA[t]='done'; scheduleRender();
     if(typeof panelReady!=='undefined'&&panelReady){playerList();if($('#tTeam').value===t&&LOGOS[slug(t)]&&!pendingLogo)$('#tLogoPrev').style.backgroundImage=`url("${LOGOS[slug(t)]}")`;}
   }catch(e){MEDIA[t]=null;}
 }
-let LOGOS_ALL=false;
-async function loadAllLogos(){
-  if(!DB||LOGOS_ALL) return; LOGOS_ALL=true;
-  try{(await DB.list('logos')).forEach(([id,d])=>{LOGOS[id]=d.data});scheduleRender();}catch(e){LOGOS_ALL=false;}
+function loadAllLogos(){}   // logolar artık agg/logos belgesiyle açılışta gelir
+async function loadFullPhoto(pid){
+  if(!DB||pid in PHOTO_FULL) return; PHOTO_FULL[pid]=null;
+  try{const d=await DB.get('photos',pid);if(d&&d.data){PHOTO_FULL[pid]=d.data;scheduleRender();}}catch(e){delete PHOTO_FULL[pid];}
 }
 
 /* ===================== Alanya: hava ve deniz ===================== */

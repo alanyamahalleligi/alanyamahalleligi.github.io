@@ -91,7 +91,7 @@ async function saveWeekly(){
   if($('#wGoalP').value.trim()&&!gp){toast('Golü atan oyuncuyu listeden seçin.');return;}
   const video=$('#wGoalVideo').value.trim(); if(video&&!/^https:\/\//.test(video)){toast('Video bağlantısı https:// ile başlamalı.');return;}
   const doc={team:weekDraft.team,note:$('#wNote').value.trim(),goal:gp?{p:gp,match:$('#wGoalM').value,minute:parseInt($('#wGoalMin').value,10)||null,video,note:$('#wGoalNote').value.trim()}:null,updated:new Date().toISOString()};
-  try{await DB.collection('weekly').doc(n).set(doc);toast('Haftanın seçimleri kaydedildi');}catch(e){toast(errMsg(e));}
+  try{await DB.aggSet('misc','weekly',String(n),doc);toast('Haftanın seçimleri kaydedildi');}catch(e){toast(errMsg(e));}
 }
 
 /* ---------- Galeri ---------- */
@@ -146,7 +146,7 @@ function initExtraPanel(){
   $('#wAdd').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addW();}});
   $('#wTeam').addEventListener('click',e=>{const b=e.target.closest('[data-wdel]');if(!b)return;weekDraft.team.splice(+b.dataset.wdel,1);weekTeamList();});
   $('#wSave').addEventListener('click',saveWeekly);
-  $('#wClear').addEventListener('click',async e=>{if(!armed(e.target,'Bu dönemi sil'))return;try{await DB.collection('weekly').doc($('#wPer').value).delete();toast('Silindi');}catch(x){toast(errMsg(x));}});
+  $('#wClear').addEventListener('click',async e=>{if(!armed(e.target,'Bu dönemi sil'))return;try{await DB.aggDel('misc','weekly',String($('#wPer').value));toast('Silindi');weeklyForm();}catch(x){toast(errMsg(x));}});
   $('#gUpload').addEventListener('click',uploadGallery);
   $('#gList').addEventListener('click',async e=>{const b=e.target.closest('[data-gdel]');if(!b||!armed(b,'Sil'))return;const id=b.dataset.gdel;
     try{await DB.collection('galleryFull').doc(id).delete();await DB.collection('gallery').doc(id).delete();GALLERY=GALLERY.filter(x=>x[0]!==id);galleryAdmin();toast('Fotoğraf silindi');}catch(x){toast(errMsg(x));}});
@@ -161,6 +161,6 @@ function initExtraPanel(){
   });
   $('#setSave').addEventListener('click',async()=>{
     const y=Math.max(0,Math.min(10,parseInt($('#setY').value,10)||0)), r=Math.max(0,Math.min(5,parseInt($('#setR').value,10)||0));
-    try{await DB.collection('settings').doc('discipline').set({yellowLimit:y,redBan:r});toast('Disiplin kuralı kaydedildi');}catch(e){toast(errMsg(e));}
+    try{await DB.aggSet('misc','settings','discipline',{yellowLimit:y,redBan:r});toast('Disiplin kuralı kaydedildi');}catch(e){toast(errMsg(e));}
   });
 }

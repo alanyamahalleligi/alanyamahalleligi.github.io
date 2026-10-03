@@ -155,13 +155,14 @@ async function saveMatch(){
   if(tm.ko){body.h=$('#aKoH').value;body.a=$('#aKoA').value;body.pen=st==='done'&&body.hs===body.as?$('#aPen').value:'';
     if(st==='done'&&body.hs===body.as&&!body.pen){toast('Eleme maçı berabere bitti; penaltılarla kazananı seçin.');return;}}
   const btn=$('#aSave');btn.disabled=true;
-  try{await DB.collection('matches').doc(id).set(body);toast(st==='done'?'Sonuç kaydedildi':st==='live'?'Canlı skor güncellendi':'Maç bilgisi kaydedildi');matchOptions();}
+  try{await DB.aggSet(mDoc(id),'m',id,body);toast(st==='done'?'Sonuç kaydedildi':st==='live'?'Canlı skor güncellendi':'Maç bilgisi kaydedildi');matchOptions();
+    if(st==='done'){DATA.matches[id]=body;rebuildBoard().catch(()=>{});}}
   catch(e){toast(errMsg(e));}
   finally{btn.disabled=false;}
 }
 async function clearMatch(){
   if(!armButton($('#aClear'),'Maç bilgisini sil','Silmek için tekrar tıklayın')) return;
-  try{await DB.collection('matches').doc($('#aMatch').value).delete();toast('Maç bilgisi silindi');loadMatch();matchOptions();}
+  try{const mid=$('#aMatch').value;await DB.aggDel(mDoc(mid),'m',mid);delete DATA.matches[mid];toast('Maç bilgisi silindi');loadMatch();matchOptions();rebuildBoard().catch(()=>{});}
   catch(e){toast(errMsg(e));}
 }
 function setPhotoPrev(src){$('#pPhotoPrev').style.backgroundImage=src?`url("${src}")`:'';$('#pPhotoDel').hidden=!src;}
@@ -178,10 +179,15 @@ async function onSavePlayer(){
   const b=$('#pAdd');b.disabled=true;
   try{
     let id=editPlayer;
-    if(id) await DB.collection('players').doc(id).set(body);
-    else id=(await DB.collection('players').add(body)).id;
-    if(pendingPhoto){await DB.collection('photos').doc(id).set({team:tname,data:pendingPhoto});PHOTOS[id]=pendingPhoto;}
-    else if(pendingPhoto===null&&editPlayer){await DB.collection('photos').doc(id).delete();delete PHOTOS[id];}
+    if(!id) id=DB.newId();
+    await DB.aggSetK('players','p',id,body);
+    if(pendingPhoto){
+      await DB.collection('photos').doc(id).set({team:tname,data:pendingPhoto.full});
+      await DB.mapSet('tphotos',tname,'p',id,pendingPhoto.thumb);
+      PHOTOS[id]=pendingPhoto.thumb;PHOTO_FULL[id]=pendingPhoto.full;
+    }else if(pendingPhoto===null&&editPlayer){
+      await DB.collection('photos').doc(id).delete();await DB.mapDel('tphotos',tname,'p',id);delete PHOTOS[id];delete PHOTO_FULL[id];
+    }
     toast(editPlayer?`${name} güncellendi`:`${name} eklendi`);
     resetPlayerForm();$('#pName').focus();playerList();scheduleRender();
   }catch(e){toast(errMsg(e));}finally{b.disabled=false;}
@@ -191,7 +197,7 @@ async function onBulk(){
   if(!lines.length){toast('Listeye en az bir oyuncu yazın.');return;}
   const b=$('#pBulkAdd');b.disabled=true;let n=0;
   try{for(const ln of lines){const m=ln.match(/^(\d{1,2})[\s.\-)]+(.+)$/);
-      await DB.collection('players').add({team:$('#pTeam').value,name:(m?m[2]:ln).trim().slice(0,60),no:m?+m[1]:null,pos:'',ban:''});n++;}
+      await DB.aggSetK('players','p',DB.newId(),{team:$('#pTeam').value,name:(m?m[2]:ln).trim().slice(0,60),no:m?+m[1]:null,pos:'',ban:''});n++;}
     $('#pBulk').value='';toast(`${n} oyuncu eklendi`);}
   catch(e){toast(n?`${n} oyuncu eklendi, kalanlar eklenemedi.`:errMsg(e));}
   finally{b.disabled=false;}
@@ -202,7 +208,7 @@ async function saveNews(){
   const doc={title,body,pinned:$('#nPin').checked,date:editNews?(DATA.news[editNews]?.date||new Date().toISOString()):new Date().toISOString()};
   const b=$('#nSave');b.disabled=true;
   try{
-    if(editNews) await DB.collection('news').doc(editNews).set(doc); else await DB.collection('news').add(doc);
+    await DB.aggSet('news','n',editNews||DB.newId(),doc);
     toast(editNews?'Duyuru güncellendi':'Duyuru yayınlandı');resetNewsForm();
   }catch(e){toast(errMsg(e));}finally{b.disabled=false;}
 }
@@ -210,8 +216,8 @@ function resetNewsForm(){editNews=null;$('#nTitle').value='';$('#nBody').value='
 async function saveTeamInfo(){
   const t=$('#tTeam').value, b=$('#tSave');b.disabled=true;
   try{
-    await DB.collection('teams').doc(slug(t)).set({team:t,captain:$('#tCaptain').value,coach:$('#tCoach').value.trim(),colors:$('#tColors').value.trim(),note:$('#tNote').value.trim()});
-    if(pendingLogo){await DB.collection('logos').doc(slug(t)).set({team:t,data:pendingLogo});LOGOS[slug(t)]=pendingLogo;pendingLogo=null;}
+    await DB.aggSet('teams','t',t,{team:t,captain:$('#tCaptain').value,coach:$('#tCoach').value.trim(),colors:$('#tColors').value.trim(),note:$('#tNote').value.trim()});
+    if(pendingLogo){await DB.aggSet('logos','l',t,pendingLogo);LOGOS[slug(t)]=pendingLogo;pendingLogo=null;}
     toast(`${t} bilgileri kaydedildi`);scheduleRender();
   }catch(e){toast(errMsg(e));}finally{b.disabled=false;}
 }
@@ -268,10 +274,10 @@ function initPanel(){
   $('#pName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();onSavePlayer();}});
   $('#pBulkAdd').addEventListener('click',onBulk);
   $('#pPhoto').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;
-    try{pendingPhoto=await resizeImage(f);setPhotoPrev(pendingPhoto);}catch(x){toast('Bu dosya açılamadı. JPG ya da PNG fotoğraf seçin.');e.target.value='';}});
+    try{const [full,thumb]=await Promise.all([resizeImage(f,320),resizeImage(f,96)]);pendingPhoto={full,thumb};setPhotoPrev(full);}catch(x){toast('Bu dosya açılamadı. JPG ya da PNG fotoğraf seçin.');e.target.value='';}});
   $('#pPhotoDel').addEventListener('click',()=>{pendingPhoto=null;$('#pPhoto').value='';setPhotoPrev(null);});
   $('#tLogo').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;
-    try{pendingLogo=await resizeImage(f,256);$('#tLogoPrev').style.backgroundImage=`url("${pendingLogo}")`;}catch(x){toast('Bu dosya açılamadı. JPG ya da PNG görsel seçin.');e.target.value='';}});
+    try{pendingLogo=await resizeImage(f,96);$('#tLogoPrev').style.backgroundImage=`url("${pendingLogo}")`;}catch(x){toast('Bu dosya açılamadı. JPG ya da PNG görsel seçin.');e.target.value='';}});
   $('#pList').addEventListener('click',async e=>{
     const ed=e.target.closest('[data-editp]');
     if(ed){const p=DATA.players[ed.dataset.editp];if(!p)return;editPlayer=ed.dataset.editp;pendingPhoto=undefined;$('#pPhoto').value='';
@@ -280,8 +286,9 @@ function initPanel(){
     const b=e.target.closest('[data-delp]'); if(!b) return;
     if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Emin misiniz?';setTimeout(()=>{b.classList.remove('arm');b.textContent='Sil'},4000);return;}
     const id=b.dataset.delp;
-    try{if(PHOTOS[id]){await DB.collection('photos').doc(id).delete();delete PHOTOS[id];}
-      await DB.collection('players').doc(id).delete();toast('Oyuncu silindi');if(editPlayer===id)resetPlayerForm();}catch(x){toast(errMsg(x));}
+    try{const pt=DATA.players[id]?.team;
+      if(PHOTOS[id]&&pt){await DB.collection('photos').doc(id).delete();await DB.mapDel('tphotos',pt,'p',id);delete PHOTOS[id];delete PHOTO_FULL[id];}
+      await DB.aggDelK('players','p',id);toast('Oyuncu silindi');if(editPlayer===id)resetPlayerForm();}catch(x){toast(errMsg(x));}
   });
   $('#nSave').addEventListener('click',saveNews);
   $('#nCancel').addEventListener('click',resetNewsForm);
@@ -291,7 +298,7 @@ function initPanel(){
       $('#nFormTitle').textContent='Duyuruyu düzenle';$('#nSave').textContent='Güncelle';$('#nCancel').hidden=false;$('#nTitle').focus();return;}
     const b=e.target.closest('[data-deln]'); if(!b) return;
     if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Emin misiniz?';setTimeout(()=>{b.classList.remove('arm');b.textContent='Sil'},4000);return;}
-    try{await DB.collection('news').doc(b.dataset.deln).delete();toast('Duyuru silindi');if(editNews===b.dataset.deln)resetNewsForm();}catch(x){toast(errMsg(x));}
+    try{await DB.aggDel('news','n',b.dataset.deln);toast('Duyuru silindi');if(editNews===b.dataset.deln)resetNewsForm();}catch(x){toast(errMsg(x));}
   });
   $('#tTeam').addEventListener('change',teamInfoForm);
   $('#tSave').addEventListener('click',saveTeamInfo);

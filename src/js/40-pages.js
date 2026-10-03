@@ -217,7 +217,7 @@ PAGES.takim=(sl)=>{
 /* ---------- Oyuncu ---------- */
 PAGES.oyuncu=(pid)=>{
   const p=DATA.players[pid]; if(!p) return LOADED?PAGES.notfound():PAGES.loading();
-  loadMedia(p.team);
+  loadMedia(p.team); loadFullPhoto(pid);
   const g=TEAM_G[p.team], v=computeStats()[pid]||{G:0,A:0,Y:0,R:0,MVP:0}, info=DATA.teams[slug(p.team)]||{};
   const games=everyMatch().filter(m=>{const r=DATA.matches[m.id],s=status(m.id);return (s==='done'||s==='live')&&r&&((Array.isArray(r.ev)&&r.ev.some(e=>e.p===pid||e.as===pid))||r.mvp===pid)}).sort(byTime).reverse();
   const bans=activeBans().filter(b=>b.pid===pid);
