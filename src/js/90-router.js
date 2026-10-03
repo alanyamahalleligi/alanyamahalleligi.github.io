@@ -13,7 +13,6 @@ const ROUTES=[
   [/^\/oyuncu\/([\w-]+)$/,'oyuncu',m=>DATA.players[m[1]]?.name||'Oyuncu'],
   [/^\/mac\/([\w-]+)$/,'mac',m=>{const x=matchInfo(m[1]);return x?`${hName(x)||x.ko?.h} – ${aName(x)||x.ko?.a}`:'Maç'}],
   [/^\/final$/,'final','Final yolu'],
-  [/^\/tahmin$/,'tahmin','Tahmin oyunu'],
   [/^\/haftanin$/,'haftanin','Haftanın kadrosu ve golü'],
   [/^\/galeri$/,'galeri','Galeri'],
   [/^\/disiplin$/,'disiplin','Disiplin'],
@@ -78,7 +77,6 @@ document.addEventListener('click',async e=>{
   if(t.id==='gLogout'||t.id==='adminLogout'){await window.AML_AUTH?.logout();gateTab='login';toast('Çıkış yapıldı');navigate('/');return;}
   if(t.id==='lReset'){const em=$('#lEmail').value.trim();if(!em){$('#gErr').textContent='Önce e-posta adresinizi yazın.';return;}
     try{await window.AML_AUTH.reset(em);$('#gErr').textContent='Şifre sıfırlama bağlantısı e-postanıza gönderildi.';}catch(x){$('#gErr').textContent='Bağlantı gönderilemedi. Adresi kontrol edin.';}return;}
-  if(t.id==='nickSave'){saveNick();return;}
   const q=(sel)=>t.closest(sel);
   let el;
   if(el=q('[data-gtab]')){gateTab=el.dataset.gtab;renderGate();$('#gate input')?.focus();return;}
@@ -93,7 +91,6 @@ document.addEventListener('click',async e=>{
   if(el=q('[data-ics]')){const m=matchInfo(el.dataset.ics);downloadIcs([m],`${slug(hName(m)||'mac')}-${slug(aName(m)||'')}`);return;}
   if(el=q('[data-share]')){const m=matchInfo(el.dataset.share);share(`${hName(m)||m.ko?.h} - ${aName(m)||m.ko?.a} · Alanya Mahalle Ligi`,`/mac/${m.id}`);return;}
   if(el=q('[data-vote]')){castVote(el.dataset.vote);return;}
-  if(el=q('[data-pred]')){savePred(el.dataset.pred);return;}
   if(el=q('[data-week]')){weekSel=+el.dataset.week;render();return;}
   if(el=q('[data-album]')){galAlbum=el.dataset.album;render();return;}
   if(el=q('[data-photo]')){openPhoto(el.dataset.photo);return;}

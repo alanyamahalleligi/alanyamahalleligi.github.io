@@ -51,7 +51,7 @@ service cloud.firestore {
       allow delete: if isAdmin() || (isManager() && resource.data.team == myTeam());
     }
 
-    // Maç başlama saatleri (tahmin ve oylama kilidi)
+    // Maç başlama saatleri (taraftar oylaması maç başlamadan açılmasın diye)
     match /kickoffs/{matchId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -102,29 +102,6 @@ service cloud.firestore {
       allow update: if signedIn() && started(matchId) && onlyField('v')
         && request.resource.data.v.diff(resource.data.v).affectedKeys().hasOnly([request.auth.uid])
         && smallStr(request.resource.data.v[request.auth.uid], 40);
-      allow delete: if isAdmin();
-    }
-
-    // Tahmin oyunu: her taraftarın tek belgesi; her yazışta en fazla bir maçın tahmini değişebilir
-    // ve o maç henüz başlamamış olmalı.
-    match /fans/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      function validFan() {
-        return smallStr(request.resource.data.nick, 24) && request.resource.data.nick.size() >= 2
-          && request.resource.data.p is map && request.resource.data.p.size() <= 130;
-      }
-      function beforeKickoff(mid) {
-        return request.time < get(/databases/$(database)/documents/kickoffs/$(mid)).data.at;
-      }
-      // İstemci değiştirdiği maçın kimliğini "k" alanına yazar (kurallar kümeden eleman okuyamaz).
-      allow create: if signedIn() && request.auth.uid == uid && validFan()
-        && (request.resource.data.p.size() == 0
-            || (request.resource.data.p.keys().hasOnly([request.resource.data.k])
-                && beforeKickoff(request.resource.data.k)));
-      allow update: if signedIn() && request.auth.uid == uid && validFan()
-        && (request.resource.data.p.diff(resource.data.p).affectedKeys().size() == 0
-            || (request.resource.data.p.diff(resource.data.p).affectedKeys().hasOnly([request.resource.data.k])
-                && beforeKickoff(request.resource.data.k)));
       allow delete: if isAdmin();
     }
 

@@ -1,16 +1,11 @@
 /* ===================== Taraftar özellikleri ===================== */
 const LINEUPS={}, VOTES={};
-let FAN=null, GALLERY=null, GAL_LAST=null, GAL_MORE=false;
+let GALLERY=null, GAL_LAST=null, GAL_MORE=false;
 const myUid=()=>window.AML_AUTH?.user?.uid||null;
 async function ensureFan(){
   const A=window.AML_AUTH; if(!A) throw new Error('offline');
   if(!A.user) await A.anon();
   return A.user.uid;
-}
-async function loadFan(){
-  const uid=myUid(); if(!uid||!DB) return;
-  if(FAN&&FAN.uid===uid) return;
-  try{const d=await DB.get('fans',uid);FAN={uid,nick:d?.nick||'',p:d?.p||{}};scheduleRender();}catch(e){}
 }
 async function loadLineups(id){
   if(!DB||LINEUPS[id]==='loading') return;
@@ -30,8 +25,6 @@ async function loadVotes(id){
     VOTES[id]={counts,mine:uid?v[uid]||null:null,total:Object.keys(v).length}; scheduleRender();
   }catch(e){delete VOTES[id];}
 }
-const predPts=(p,s)=>!p||!s?null:(p[0]===s[0]&&p[1]===s[1])?3:(Math.sign(p[0]-p[1])===Math.sign(s[0]-s[1]))?1:0;
-
 /* ---------- Maç sayfası ---------- */
 function lineupCol(m,side){
   const L=LINEUPS[m.id], team=side==='h'?m.h:m.a, d=L&&L!=='loading'?L[side]:null;
@@ -51,18 +44,10 @@ function voteBox(m){
     <div class="row no-print" style="margin-top:10px"><label class="fld"><span>${V.mine?'Oyunu değiştir':'Oyunu ver'}</span><select id="voteSel">${[m.h,m.a].map(t=>`<optgroup label="${esc(t)}">${pool.filter(pid=>DATA.players[pid].team===t).map(pid=>`<option value="${pid}"${V.mine===pid?' selected':''}>${esc(pName(pid))}</option>`).join('')}</optgroup>`).join('')}</select></label>
       <button type="button" class="btn sm" data-vote="${m.id}">Oy ver</button></div></div>`;
 }
-function predictBox(m){
-  if(status(m.id)==='done'||status(m.id)==='live'||kickoff(m)<=new Date()||!hName(m)||!aName(m)) return '';
-  const p=FAN?.p?.[m.id];
-  return `<div class="panel pad no-print"><h3 class="minihead">Skor tahminin</h3>
-    ${FAN&&FAN.nick?`<div class="predRow" data-pm="${m.id}"><span class="tn">${esc(m.h)}</span><input type="number" min="0" max="20" inputmode="numeric" aria-label="${esc(m.h)} gol" value="${p?p[0]:''}"><span>–</span><input type="number" min="0" max="20" inputmode="numeric" aria-label="${esc(m.a)} gol" value="${p?p[1]:''}"><span class="tn">${esc(m.a)}</span><button type="button" class="btn sm" data-pred="${m.id}">${p?'Güncelle':'Kaydet'}</button></div><p class="hint">Maç başlayınca tahminler kilitlenir.</p>`
-      :`<p class="hint">Tahmin yapmak için önce <a href="/tahmin">Tahmin oyunu</a> sayfasında bir takma ad seç.</p>`}</div>`;
-}
 PAGES.mac=(id)=>{
   const m=matchInfo(id); if(!m) return PAGES.notfound();
   const r=DATA.matches[id]||{}, st=status(id), s=shown(id), f=fmt(m.d), h=hName(m)||m.ko?.h, a=aName(m)||m.ko?.a;
   if(m.h&&m.a&&!LINEUPS[id]) loadLineups(id);
-  if(myUid()&&!FAN) loadFan();
   const stLabel=st==='live'?`<span class="badge live">Canlı${r.minute?' '+r.minute+"'":''}</span>`:st==='done'?'<span class="badge ft">Maç sonu</span>':st==='post'?'<span class="badge post">Ertelendi</span>':'';
   const ev=Array.isArray(r.ev)?[...r.ev].sort((x,y)=>(x.m||999)-(y.m||999)):[];
   const evHtml=(st==='done'||st==='live')&&ev.length?`<ul class="tl">${ev.map(e=>{const txt=`${IC[e.t]}<span>${plink(e.p)}${e.as&&e.t==='G'?` <small>asist ${esc(pName(e.as))}</small>`:''}${e.t==='OG'?' <small>(k.k.)</small>':''}</span>`;
@@ -93,66 +78,12 @@ PAGES.mac=(id)=>{
     </div>
     <div>
       <h2 class="subhead">Maç bilgisi</h2><dl class="kv panel pad">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
-      <div class="stackGap">${predictBox(m)}${voteBox(m)}</div>
+      <div class="stackGap">${voteBox(m)}</div>
       ${same.length?`<h2 class="subhead">Aynı gün</h2><div class="panel">${same.map(x=>matchRow(x)).join('')}</div>`:''}
     </div>
   </div></div>`;
 };
 
-/* ---------- Tahmin oyunu ---------- */
-PAGES.tahmin=()=>{
-  if(myUid()&&!FAN) loadFan();
-  const upcoming=everyMatch().filter(m=>hName(m)&&aName(m)&&status(m.id)===''&&kickoff(m)>new Date()).sort(byTime);
-  const days=[...new Set(upcoming.map(m=>m.d))].slice(0,3);
-  const mine=FAN?Object.entries(FAN.p).map(([mid,p])=>{const m=matchInfo(mid);return m?{m,p,pts:predPts(p,sc(mid))}:null}).filter(Boolean).sort((a,b)=>byTime(b.m,a.m)):[];
-  const total=mine.reduce((s,x)=>s+(x.pts||0),0);
-  const board=BOARD;
-  return `<div class="wrap page">${pageHead('Taraftar oyunu','Tahmin oyunu','Maç skorlarını önceden tahmin et. Tam skor 3 puan, doğru sonuç 1 puan. Tahminler maç başlayınca kilitlenir.')}
-  <div class="twoCol">
-    <div>
-      <div class="panel pad">
-        <h3 class="minihead">Takma adın</h3>
-        <div class="row"><label class="fld"><span>Sıralamada görünecek ad</span><input id="nickIn" type="text" minlength="2" maxlength="24" value="${esc(FAN?.nick||'')}" placeholder="Örn. Kızılkule Kartalı" autocomplete="nickname"></label>
-        <button type="button" class="btn sm" id="nickSave">${FAN?.nick?'Değiştir':'Başla'}</button></div>
-        ${FAN?.nick?`<p class="hint">${{ok:'<b>Takma adın onaylı</b>, sıralamada bu adla görünürsün.',bad:'<b>Takma adın uygun bulunmadı.</b> Başka bir ad seçene kadar sıralamada adın görünmez.',wait:'<b>Takma adın lig yönetiminin onayını bekliyor.</b> Onaylanana kadar sıralamada "'+anonName(FAN.uid)+'" olarak görünürsün; tahmin yapmaya şimdiden başlayabilirsin.'}[nickState(FAN.uid,FAN.nick)]}</p>`:''}
-        <p class="hint">Hesap açman gerekmez; tahminlerin bu tarayıcıya bağlı kalır. Tarayıcı verilerini silersen tahminlerine yeniden ulaşamazsın.</p>
-      </div>
-      ${FAN?.nick?`<h2 class="subhead">Yaklaşan maçlar</h2>${days.length?days.map(d=>`<h3 class="minihead">${fmt(d).dm} ${fmt(d).wd}</h3><div class="panel">${upcoming.filter(m=>m.d===d).map(m=>{const p=FAN.p[m.id];
-        return `<div class="predRow" data-pm="${m.id}"><span class="t muted">${m.t||'—'}</span><span class="tn r">${esc(m.h)}</span><input type="number" min="0" max="20" inputmode="numeric" aria-label="${esc(m.h)} gol" value="${p?p[0]:''}"><span>–</span><input type="number" min="0" max="20" inputmode="numeric" aria-label="${esc(m.a)} gol" value="${p?p[1]:''}"><span class="tn">${esc(m.a)}</span><button type="button" class="btn sm ${p?'line':''}" data-pred="${m.id}">${p?'Güncelle':'Kaydet'}</button></div>`}).join('')}</div>`).join(''):'<div class="empty">Tahmin yapılabilecek maç yok.</div>'}
-        <h2 class="subhead">Tahminlerin <small class="muted" style="font-size:1rem">${total} puan</small></h2>
-        ${mine.length?`<div class="panel">${mine.map(x=>{const s=sc(x.m.id);return `<a class="res" href="/mac/${x.m.id}" style="grid-template-columns:4.8rem minmax(0,1fr) auto"><span class="d">${fmt(x.m.d).dm}</span><span>${esc(x.m.h)} – ${esc(x.m.a)} <small class="muted">tahmin ${x.p.join('–')}${s?` · sonuç ${s.join('–')}`:''}</small></span><b class="${x.pts===3?'pt3':x.pts===1?'pt1':''}">${x.pts==null?'bekliyor':x.pts+' puan'}</b></a>`}).join('')}</div>`:'<p class="hint">Henüz tahmin yapmadın.</p>'}`:''}
-    </div>
-    <div><h2 class="subhead">Sıralama</h2>
-      <article class="lcard">${board.length?`<ol>${board.map((f,i)=>`<li${f.uid===myUid()?' class="me"':''}><span class="rk">${i+1}</span><span class="nm">${esc(f.nick)}<small>${f.n} tahmin · ${f.exact} tam skor</small></span><span class="c">${f.pts}</span></li>`).join('')}</ol>`:`<div class="none">Sonuçlanan maç olunca sıralama oluşacak.</div>`}</article>${BOARD_AT?`<p class="hint" style="margin-top:8px">Sıralama her maç sonucu girildiğinde güncellenir. Son güncelleme: ${fmtDate(BOARD_AT)}</p>`:''}</div>
-  </div></div>`;
-};
-// Sıralamayı yönetici hesaplar ve agg/board belgesine yazar; ziyaretçiler yalnızca o belgeyi okur.
-async function rebuildBoard(){
-  if(!IS_ADMIN) return;
-  const fans=await DB.list('fans');
-  const top=fans.map(([uid,f])=>{let pts=0,exact=0,n=0;for(const[mid,p] of Object.entries(f.p||{})){const x=predPts(p,sc(mid));if(x!=null){pts+=x;n++;if(x===3)exact++;}}return {uid,nick:nickState(uid,f.nick||'')==='ok'?f.nick:anonName(uid),pts,exact,n}})
-    .filter(f=>f.n>0).sort((a,b)=>b.pts-a.pts||b.exact-a.exact||a.nick.localeCompare(b.nick,'tr')).slice(0,50);
-  await DB.collection('agg').doc('board').set({top,updated:new Date().toISOString()});
-}
-async function saveNick(){
-  const nick=$('#nickIn').value.trim();
-  if(nick.length<2){toast('Takma ad en az 2 karakter olmalı.');return;}
-  try{const uid=await ensureFan();await loadFan();
-    await DB.collection('fans').doc(uid).set({nick,p:FAN?.p||{},updated:new Date().toISOString()});
-    FAN={uid,nick,p:FAN?.p||{}};toast('Takma adın kaydedildi');render();}
-  catch(e){toast('Kaydedilemedi. Bağlantını kontrol edip tekrar dene.');}
-}
-async function savePred(mid){
-  const row=document.querySelector(`[data-pm="${mid}"]`), ins=row.querySelectorAll('input');
-  const h=ins[0].value, a=ins[1].value;
-  if(h===''||a===''){toast('İki takımın skorunu da yaz.');return;}
-  const m=matchInfo(mid); if(kickoff(m)<=new Date()){toast('Bu maç başladı, tahmin kapandı.');return;}
-  try{const uid=await ensureFan();
-    const p={...(FAN?.p||{}),[mid]:[Math.min(20,Math.max(0,+h)),Math.min(20,Math.max(0,+a))]};
-    await DB.collection('fans').doc(uid).set({nick:FAN.nick,p,k:mid,updated:new Date().toISOString()});
-    FAN.p=p;toast(`Tahmin kaydedildi: ${m.h} ${p[mid][0]}–${p[mid][1]} ${m.a}`);render();}
-  catch(e){toast(e&&e.code==='permission-denied'?'Bu maç için tahmin süresi doldu.':'Kaydedilemedi. Tekrar dene.');}
-}
 async function castVote(mid){
   const pid=$('#voteSel').value; if(!pid) return;
   try{const uid=await ensureFan();

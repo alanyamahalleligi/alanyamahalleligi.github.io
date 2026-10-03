@@ -44,11 +44,10 @@ Fotoğraflar ve logolar tarayıcıda 320 piksel kareye küçültülüp `photos/{
 
 ## Sayfalar
 
-`/` ana sayfa · `/fikstur` · `/gruplar` · `/grup/a` … `/grup/h` · `/istatistik` · `/takimlar` · `/takim/<mahalle>` · `/oyuncu/<id>` · `/mac/<id>` · `/final` · `/tahmin` · `/haftanin` · `/galeri` · `/disiplin` · `/duyurular` · `/duyuru/<id>` · `/sponsorlar` · `/bilgi` · `/giris` · `/yonetim`
+`/` ana sayfa · `/fikstur` · `/gruplar` · `/grup/a` … `/grup/h` · `/istatistik` · `/takimlar` · `/takim/<mahalle>` · `/oyuncu/<id>` · `/mac/<id>` · `/final` · `/haftanin` · `/galeri` · `/disiplin` · `/duyurular` · `/duyuru/<id>` · `/sponsorlar` · `/bilgi` · `/giris` · `/yonetim`
 
 ## Diğer koleksiyonlar
 
 - `lineups/<maçId>__<takım>`: maç kadrosu (`start`, `subs`); yönetici ve o takımın hesabı yazar.
-- `fans/<uid>`: tahmin oyunu (`nick`, `p: {maçId: [ev, deplasman]}`); taraftarlar anonim girişle yazar, kurallar maç başladıktan sonra değişikliği reddeder (`kickoffs/<maçId>.at`).
-- `mvpvotes/<maçId>__<uid>`: taraftar oylaması, yalnızca biten maçlar.
+- `mvpvotes/<maçId>`: taraftar oylaması `{v: {uid: oyuncuId}}`; anonim girişle, maç başladıktan sonra.
 - `weekly/<dönem>`, `sponsors`, `gallery` + `galleryFull`, `settings/discipline`: yalnızca yönetici yazar.

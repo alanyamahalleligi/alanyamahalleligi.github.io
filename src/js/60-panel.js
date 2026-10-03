@@ -161,14 +161,13 @@ async function saveMatch(){
   if(tm.ko){body.h=$('#aKoH').value;body.a=$('#aKoA').value;body.pen=st==='done'&&body.hs===body.as?$('#aPen').value:'';
     if(st==='done'&&body.hs===body.as&&!body.pen){toast('Eleme maçı berabere bitti; penaltılarla kazananı seçin.');return;}}
   const btn=$('#aSave');btn.disabled=true;
-  try{await DB.aggSet(mDoc(id),'m',id,body);toast(st==='done'?'Sonuç kaydedildi':st==='live'?'Canlı skor güncellendi':'Maç bilgisi kaydedildi');matchOptions();
-    if(st==='done'){DATA.matches[id]=body;rebuildBoard().catch(()=>{});}}
+  try{await DB.aggSet(mDoc(id),'m',id,body);toast(st==='done'?'Sonuç kaydedildi':st==='live'?'Canlı skor güncellendi':'Maç bilgisi kaydedildi');matchOptions();}
   catch(e){toast(errMsg(e));}
   finally{btn.disabled=false;}
 }
 async function clearMatch(){
   if(!armButton($('#aClear'),'Maç bilgisini sil','Silmek için tekrar tıklayın')) return;
-  try{const mid=$('#aMatch').value;await DB.aggDel(mDoc(mid),'m',mid);delete DATA.matches[mid];toast('Maç bilgisi silindi');loadMatch();matchOptions();rebuildBoard().catch(()=>{});}
+  try{const mid=$('#aMatch').value;await DB.aggDel(mDoc(mid),'m',mid);delete DATA.matches[mid];toast('Maç bilgisi silindi');loadMatch();matchOptions();}
   catch(e){toast(errMsg(e));}
 }
 function setPhotoPrev(src){$('#pPhotoPrev').style.backgroundImage=src?`url("${src}")`:'';$('#pPhotoDel').hidden=!src;}
@@ -249,7 +248,7 @@ function showTab(name){
   if(name==='takimbilgi') teamInfoForm();
   if(name==='oyuncular') playerList();
   if(name==='hesaplar') accountsList();
-  if(name==='onaylar'){approvalsList();nickAdminList(false);}
+  if(name==='onaylar') approvalsList();
   if(name==='kadrolar') lineupMatches();
   if(name==='haftanin') weeklyForm();
   if(name==='galeri') galleryAdmin();

@@ -1,7 +1,7 @@
 /* ===================== Onay süreci ===================== */
 // Takım hesapları doğrudan yayınlayamaz: değişiklik "pending" koleksiyonuna gider,
 // yönetici Onaylar sekmesinden onaylayınca siteye işlenir.
-let MY_PENDING=[], NICKS={ok:{},bad:{}}, NICK_FANS=null;
+let MY_PENDING=[];
 const PEND_LBL={player:'Oyuncu',playerDel:'Oyuncu silme',team:'Takım bilgileri',lineup:'Maç kadrosu'};
 async function submitPending(type,key,data){
   const A=window.AML_AUTH;
@@ -60,29 +60,6 @@ async function applyPending(id){
   await DB.collection('pending').doc(id).delete();
 }
 
-/* ---------- Takma ad denetimi ---------- */
-const nickState=(uid,nick)=>NICKS.ok[uid]===nick?'ok':NICKS.bad[uid]===nick?'bad':'wait';
-const anonName=uid=>'Taraftar '+String(uid).replace(/[^A-Za-z0-9]/g,'').slice(0,4).toUpperCase();
-async function nickAdminList(reload){
-  if(!IS_ADMIN||!panelReady) return;
-  if(reload||!NICK_FANS){$('#nkList').innerHTML='<li><span class="muted">Yükleniyor…</span></li>';try{NICK_FANS=await DB.list('fans');}catch(e){NICK_FANS=[];}}
-  const rows=NICK_FANS.map(([uid,f])=>({uid,nick:f.nick||'',n:Object.keys(f.p||{}).length,st:nickState(uid,f.nick||'')}));
-  const order={wait:0,bad:1,ok:2};
-  rows.sort((a,b)=>order[a.st]-order[b.st]||a.nick.localeCompare(b.nick,'tr'));
-  const wait=rows.filter(r=>r.st==='wait').length;
-  $('#nkCount').textContent=rows.length?`${rows.length} taraftar · ${wait} onay bekliyor`:'';
-  $('#nkList').innerHTML=rows.length?rows.map(r=>`<li><span><b>${esc(r.nick)}</b> <small class="muted">${r.n} tahmin · ${{ok:'onaylı',bad:'reddedildi',wait:'onay bekliyor'}[r.st]}</small></span>${r.st!=='ok'?`<button type="button" class="btn sm" data-nkok="${r.uid}">Onayla</button>`:''}${r.st!=='bad'?`<button type="button" data-nkno="${r.uid}">Reddet</button>`:''}</li>`).join('')
-    :'<li><span class="muted">Henüz tahmin oyununa katılan yok.</span></li>';
-}
-async function setNick(uid,ok){
-  const f=(NICK_FANS||[]).find(x=>x[0]===uid); if(!f) return;
-  const nick=f[1].nick||'';
-  if(ok){await DB.aggSet('nicks','ok',uid,nick);await DB.aggDel('nicks','bad',uid);NICKS.ok[uid]=nick;delete NICKS.bad[uid];}
-  else{await DB.aggSet('nicks','bad',uid,nick);await DB.aggDel('nicks','ok',uid);NICKS.bad[uid]=nick;delete NICKS.ok[uid];}
-  nickAdminList(false);
-  rebuildBoard().catch(()=>{});
-}
-
 function initApprovals(){
   $('#apList').addEventListener('click',async e=>{
     const ok=e.target.closest('[data-apok]'), no=e.target.closest('[data-apno]'), all=e.target.closest('[data-apall]');
@@ -93,11 +70,6 @@ function initApprovals(){
         let n=0;for(const id of ids){await applyPending(id);n++;}toast(`${n} değişiklik onaylandı`);scheduleRender();}
     }catch(x){toast(errMsg(x));approvalsList();}
   });
-  $('#nkList').addEventListener('click',async e=>{
-    const ok=e.target.closest('[data-nkok]'), no=e.target.closest('[data-nkno]');
-    try{if(ok)await setNick(ok.dataset.nkok,true);else if(no)await setNick(no.dataset.nkno,false);}catch(x){toast(errMsg(x));}
-  });
-  $('#nkReload').addEventListener('click',()=>nickAdminList(true));
   document.addEventListener('click',async e=>{
     const c=e.target.closest('[data-pcancel]'); if(!c) return;
     try{await DB.collection('pending').doc(c.dataset.pcancel).delete();toast('Değişiklik geri alındı');await loadMyPending();}catch(x){toast(errMsg(x));}

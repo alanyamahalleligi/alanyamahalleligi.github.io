@@ -117,7 +117,6 @@ PAGES.home=()=>{
     <h2 class="subhead">Grup liderleri</h2><div class="glead">${leadersMini}</div>
     <div class="homeGrid">
       ${leaderCard('Gol krallığı','<i class="ic g"></i>',scorers,'gol',r=>r.v,r=>pSub(r.pid),'/istatistik')}
-      <article class="lcard cta"><header><h3>Tahmin oyunu</h3></header><p>Maç skorlarını önceden tahmin et, tam skor 3, doğru sonuç 1 puan. En iyi tahminciler listesine gir.</p><a class="btn sm" href="/tahmin">Tahmin yap</a></article>
       <article class="lcard cta"><header><h3>Takımını takip et</h3></header><p>${fol.length?`Takip ettiklerin: <b>${fol.map(esc).join(', ')}</b>. Maç başlayınca, gol olunca ve maç bitince bildirim alırsın.`:'Mahallenin sayfasında "Takip et"e dokun; maç başlayınca, gol olunca ve maç bitince bildirim al.'}</p><a class="btn sm line" href="/takimlar">Takımlar</a></article>
     </div>
     ${Object.keys(DATA.sponsors).length?`<h2 class="subhead">Destekçilerimiz</h2>${sponsorStrip()}`:''}
@@ -347,7 +346,6 @@ PAGES.bilgi=()=>`<div class="wrap page">${pageHead('Turnuva rehberi','Bilmeniz g
     <details><summary>Bay geçmek ne demek?</summary><p>E, F, G ve H gruplarında beş takım olduğu için her turda bir takım maç yapmaz. Bay geçen takım o tur puan almaz ve kaybetmez.</p></details>
     <details><summary>Maçları nereden izleyebilirim?</summary><p>Tüm maçlar TV82'nin YouTube kanalında canlı yayınlanır. Yayın bağlantısı eklenen maçlarda maç sayfasında videoya giden bir düğme görünür.</p></details>
     <details><summary>Takımımın maçlarını nasıl takip ederim?</summary><p>Takımın sayfasında "Takip et"e dokunun. Site açıkken (ya da telefona eklenmiş uygulama arka planda çalışırken) maç başlayınca, gol olunca ve maç bitince bildirim alırsınız. "Takvime ekle" ile bütün maçları telefon takviminize de ekleyebilirsiniz.</p></details>
-    <details><summary>Tahmin oyunu nasıl puanlanır?</summary><p>Tam skoru bilen 3, sadece sonucu (galibiyet, beraberlik, mağlubiyet) bilen 1 puan alır. Tahminler maç başlayınca kilitlenir.</p></details>
     <details><summary>Takımımın kadrosunu kim giriyor?</summary><p>Her mahallenin temsilcisi Giriş sayfasından takım hesabı açar. Lig yönetimi onaylayınca temsilci kadroyu, forma numaralarını, fotoğrafları ve maç kadrolarını kendisi girer.</p></details>
   </div></div>`;
 
