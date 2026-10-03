@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0b1b26"/>
-  <path d="M16 53V27l5-5V13h4v4h5v-4h4v4h5v-4h4v9l5 5v26z" fill="#e0542f"/>
-  <path d="M28 53v-9a4 4 0 0 1 8 0v9z" fill="#0b1b26"/>
-  <rect x="21" y="30" width="4" height="7" rx="2" fill="#0b1b26"/><rect x="39" y="30" width="4" height="7" rx="2" fill="#0b1b26"/>
-  <rect x="10" y="53" width="44" height="3" rx="1.5" fill="#38bcc4"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0b1b26"/><g transform="translate(9.5 6) scale(1.1)"><polygon points="9,44 11,18 16,16 15,44" fill="#a83219"/><polygon points="15,44 16,16 24,16 25,44" fill="#d94f2b"/><polygon points="25,44 24,16 29,18 31,44" fill="#b53a1e"/><polygon points="10,18 11,13 29,13 30,18" fill="#c2452a"/><rect x="11.5" y="9" width="3" height="4" fill="#c2452a"/><rect x="16.2" y="9" width="3" height="4" fill="#c2452a"/><rect x="20.8" y="9" width="3" height="4" fill="#c2452a"/><rect x="25.5" y="9" width="3" height="4" fill="#c2452a"/><rect x="19" y="23" width="2" height="5" rx="1" fill="#5a1a0c"/><rect x="19" y="32" width="2" height="5" rx="1" fill="#5a1a0c"/><path d="M20 9V2" stroke="#cfd8dc" stroke-width="1"/><polygon points="20,2 27,2 25.5,4 27,6 20,6" fill="#e30a17"/><path d="M3 44.5q4-2.4 8 0t8 0 8 0 8 0v3H3z" fill="#38bcc4"/><circle cx="33.5" cy="40" r="4.6" fill="#fff" stroke="#0d2330" stroke-width="1"/><polygon points="33.5,38.2 35.2,39.4 34.6,41.4 32.4,41.4 31.8,39.4" fill="#0d2330"/></g></svg>
