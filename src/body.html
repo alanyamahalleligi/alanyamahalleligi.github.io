@@ -31,6 +31,7 @@
     </div>
     <div class="atabs" role="group" aria-label="Yönetim bölümleri">
       <button type="button" data-atab="maclar" aria-pressed="true">Maçlar</button>
+      <button type="button" data-atab="onaylar" aria-pressed="false">Onaylar <em class="cnt" id="apCount" hidden></em></button>
       <button type="button" data-atab="kadrolar" aria-pressed="false">Maç kadroları</button>
       <button type="button" data-atab="oyuncular" aria-pressed="false">Oyuncular</button>
       <button type="button" data-atab="takimbilgi" aria-pressed="false">Takım bilgileri</button>
@@ -40,6 +41,22 @@
       <button type="button" data-atab="sponsorlar" aria-pressed="false">Sponsorlar</button>
       <button type="button" data-atab="hesaplar" aria-pressed="false">Takım hesapları <em class="cnt" id="reqCount2" hidden></em></button>
       <button type="button" data-atab="ayarlar" aria-pressed="false">Ayarlar</button>
+    </div>
+
+    <p class="hint mypending" id="myPending" hidden></p>
+
+    <div class="admin-grid" data-apane="onaylar" hidden>
+      <div class="pane">
+        <h3>Onay bekleyen takım verileri</h3>
+        <p class="hint">Takım hesaplarının girdiği oyuncular, fotoğraflar, takım bilgileri ve maç kadroları siz onaylayana kadar sitede görünmez.</p>
+        <ul class="nlist" id="apList" style="max-height:560px"></ul>
+      </div>
+      <div class="pane">
+        <h3>Tahmin oyunu takma adları</h3>
+        <p class="hint">Bir takma ad siz onaylayana kadar sıralamada "Taraftar XXXX" olarak görünür. Reddedilen ad hiç gösterilmez. <span id="nkCount"></span></p>
+        <div class="row"><button type="button" class="btn ghost sm" id="nkReload">Listeyi yenile</button></div>
+        <ul class="nlist" id="nkList" style="max-height:480px"></ul>
+      </div>
     </div>
 
     <div class="admin-grid" data-apane="maclar">
@@ -235,7 +252,7 @@
     <div class="admin-grid" data-apane="hesaplar" hidden>
       <div class="pane">
         <h3>Bekleyen başvurular</h3>
-        <p class="hint">Takım temsilcileri sitedeki Giriş sayfasından hesap açıp başvurur. Onayladığınız hesap yalnızca seçtiğiniz mahallenin kadrosunu, fotoğraflarını, maç kadrolarını ve takım bilgilerini düzenleyebilir; maç sonucu giremez.</p>
+        <p class="hint">Takım temsilcileri sitedeki Giriş sayfasından hesap açıp başvurur. Onayladığınız hesap yalnızca seçtiğiniz mahalle için oyuncu, fotoğraf, maç kadrosu ve takım bilgisi gönderebilir; gönderdikleri Onaylar sekmesinde siz onaylayınca yayınlanır.</p>
         <ul class="nlist" id="reqList"></ul>
       </div>
       <div class="pane">

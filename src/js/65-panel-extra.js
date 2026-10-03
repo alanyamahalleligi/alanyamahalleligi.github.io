@@ -62,6 +62,7 @@ async function saveLineup(){
   const start=order.filter(id=>lineDraft[id]==='start'), subs=order.filter(id=>lineDraft[id]==='sub');
   if(!start.length){toast('İlk kadroya en az bir oyuncu seçin.');return;}
   if(start.length>16||subs.length>20){toast('Kadro çok kalabalık: en fazla 16 ilk, 20 yedek.');return;}
+  if(!IS_ADMIN){try{await submitPending('lineup',`${mid}__${t}`,{match:mid,start,subs});toast('Kadro lig yönetiminin onayına gönderildi');}catch(e){toast(errMsg(e));}return;}
   try{await DB.collection('lineups').doc(`${mid}__${t}`).set({match:mid,team:t,start,subs,updated:new Date().toISOString()});
     delete LINEUPS[mid];toast(`${t} kadrosu kaydedildi`);}catch(e){toast(errMsg(e));}
 }

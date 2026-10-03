@@ -137,8 +137,8 @@ function accountsList(){
     :'<li><span class="muted">Henüz onaylı takım hesabı yok.</span></li>';
 }
 function updateAdminBadge(){
-  const n=IS_ADMIN?Object.keys(DATA.requests||{}).length:0;
-  [$('#reqCount'),$('#reqCount2')].forEach(el=>{if(!el)return;el.hidden=!n;el.textContent=n;});
+  const n=IS_ADMIN?Object.keys(DATA.requests||{}).length:0, pn=IS_ADMIN?Object.keys(DATA.pending||{}).length:0;
+  [[$('#reqCount'),n+pn],[$('#reqCount2'),n],[$('#apCount'),pn]].forEach(([el,v])=>{if(!el)return;el.hidden=!v;el.textContent=v;});
 }
 async function saveMatch(){
   const id=$('#aMatch').value, tm=curTeams(), hs=$('#aHs').value, as=$('#aAs').value, st=$('#aStatus').value;
@@ -177,6 +177,12 @@ async function onSavePlayer(){
   if(no&&squadOf(tname).some(([id,p])=>p.no===no&&id!==editPlayer)){toast(`${no} numara bu takımda başka bir oyuncuda. Farklı numara seçin.`);return;}
   const body={team:tname,name,no,pos:$('#pPos').value,ban:IS_ADMIN?$('#pBan').value.trim():(old?.ban||'')};
   const b=$('#pAdd');b.disabled=true;
+  if(!IS_ADMIN){   // takım hesabı: onaya gönder
+    try{await submitPending('player',editPlayer||DB.newId(),{name,no,pos:$('#pPos').value,photo:pendingPhoto?pendingPhoto:(pendingPhoto===null&&editPlayer?'remove':'keep')});
+      toast(`${name} lig yönetiminin onayına gönderildi`);resetPlayerForm();$('#pName').focus();}
+    catch(e){toast(errMsg(e));}finally{b.disabled=false;}
+    return;
+  }
   try{
     let id=editPlayer;
     if(!id) id=DB.newId();
@@ -197,8 +203,11 @@ async function onBulk(){
   if(!lines.length){toast('Listeye en az bir oyuncu yazın.');return;}
   const b=$('#pBulkAdd');b.disabled=true;let n=0;
   try{for(const ln of lines){const m=ln.match(/^(\d{1,2})[\s.\-)]+(.+)$/);
-      await DB.aggSetK('players','p',DB.newId(),{team:$('#pTeam').value,name:(m?m[2]:ln).trim().slice(0,60),no:m?+m[1]:null,pos:'',ban:''});n++;}
-    $('#pBulk').value='';toast(`${n} oyuncu eklendi`);}
+      const nm=(m?m[2]:ln).trim().slice(0,60), nn=m?+m[1]:null;
+      if(IS_ADMIN) await DB.aggSetK('players','p',DB.newId(),{team:$('#pTeam').value,name:nm,no:nn,pos:'',ban:''});
+      else await DB.collection('pending').add({type:'player',key:DB.newId(),data:{name:nm,no:nn,pos:'',photo:'keep'},team:MY_TEAM,by:window.AML_AUTH.user.uid,at:new Date().toISOString()});
+      n++;}
+    $('#pBulk').value='';toast(IS_ADMIN?`${n} oyuncu eklendi`:`${n} oyuncu lig yönetiminin onayına gönderildi`);if(!IS_ADMIN)loadMyPending();}
   catch(e){toast(n?`${n} oyuncu eklendi, kalanlar eklenemedi.`:errMsg(e));}
   finally{b.disabled=false;}
 }
@@ -215,6 +224,12 @@ async function saveNews(){
 function resetNewsForm(){editNews=null;$('#nTitle').value='';$('#nBody').value='';$('#nPin').checked=false;$('#nFormTitle').textContent='Duyuru yayınla';$('#nSave').textContent='Yayınla';$('#nCancel').hidden=true;}
 async function saveTeamInfo(){
   const t=$('#tTeam').value, b=$('#tSave');b.disabled=true;
+  if(!IS_ADMIN){
+    try{await submitPending('team',t,{captain:$('#tCaptain').value,coach:$('#tCoach').value.trim(),colors:$('#tColors').value.trim(),note:$('#tNote').value.trim(),logo:pendingLogo||''});pendingLogo=null;
+      toast('Takım bilgileri lig yönetiminin onayına gönderildi');}
+    catch(e){toast(errMsg(e));}finally{b.disabled=false;}
+    return;
+  }
   try{
     await DB.aggSet('teams','t',t,{team:t,captain:$('#tCaptain').value,coach:$('#tCoach').value.trim(),colors:$('#tColors').value.trim(),note:$('#tNote').value.trim()});
     if(pendingLogo){await DB.aggSet('logos','l',t,pendingLogo);LOGOS[slug(t)]=pendingLogo;pendingLogo=null;}
@@ -227,6 +242,7 @@ function showTab(name){
   if(name==='takimbilgi') teamInfoForm();
   if(name==='oyuncular') playerList();
   if(name==='hesaplar') accountsList();
+  if(name==='onaylar'){approvalsList();nickAdminList(false);}
   if(name==='kadrolar') lineupMatches();
   if(name==='haftanin') weeklyForm();
   if(name==='galeri') galleryAdmin();
@@ -234,10 +250,10 @@ function showTab(name){
   if(name==='ayarlar'){const d=DATA.settings.discipline||{};$('#setY').value=d.yellowLimit??'';$('#setR').value=d.redBan??'';}
 }
 function applyRole(){
-  const allowed=IS_ADMIN?['maclar','kadrolar','oyuncular','takimbilgi','duyurular','haftanin','galeri','sponsorlar','hesaplar','ayarlar']:['oyuncular','kadrolar','takimbilgi'];
+  const allowed=IS_ADMIN?['maclar','onaylar','kadrolar','oyuncular','takimbilgi','duyurular','haftanin','galeri','sponsorlar','hesaplar','ayarlar']:['oyuncular','kadrolar','takimbilgi'];
   $$('[data-atab]').forEach(b=>b.hidden=!allowed.includes(b.dataset.atab));
   ['#pTeam','#tTeam'].forEach(s=>{const el=$(s);if(MY_TEAM){el.value=MY_TEAM;el.disabled=true;}else el.disabled=false;});
-  $('#pBanWrap').hidden=!IS_ADMIN;
+  $('#pBanWrap').hidden=!IS_ADMIN;$('#lClear').hidden=!IS_ADMIN;pendingNote();
   $('#panelEyebrow').textContent=IS_ADMIN?'Yönetim paneli':'Takım paneli';
   $('#panelTitle').textContent=IS_ADMIN?'Lig yönetimi':`${MY_TEAM} takım paneli`;
   const cur=$$('[data-atab]').find(b=>b.getAttribute('aria-pressed')==='true');
@@ -245,7 +261,7 @@ function applyRole(){
 }
 function initPanel(){
   teamOptions($('#aKoH'),true);teamOptions($('#aKoA'),true);teamOptions($('#pTeam'));teamOptions($('#tTeam'));
-  $('#pTeam').value=MY_TEAM||'Alara';$('#tTeam').value=MY_TEAM||'Alara';initExtraPanel();
+  $('#pTeam').value=MY_TEAM||'Alara';$('#tTeam').value=MY_TEAM||'Alara';initExtraPanel();initApprovals();
   $$('[data-atab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.atab)));
   $('#aMatch').addEventListener('change',loadMatch);
   $('#aKoH').addEventListener('change',()=>{adminSides();renderDraft()});
@@ -286,6 +302,7 @@ function initPanel(){
     const b=e.target.closest('[data-delp]'); if(!b) return;
     if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Emin misiniz?';setTimeout(()=>{b.classList.remove('arm');b.textContent='Sil'},4000);return;}
     const id=b.dataset.delp;
+    if(!IS_ADMIN){try{await submitPending('playerDel',id,{});toast('Silme isteği lig yönetiminin onayına gönderildi');}catch(x){toast(errMsg(x));}return;}
     try{const pt=DATA.players[id]?.team;
       if(PHOTOS[id]&&pt){await DB.collection('photos').doc(id).delete();await DB.mapDel('tphotos',pt,'p',id);delete PHOTOS[id];delete PHOTO_FULL[id];}
       await DB.aggDelK('players','p',id);toast('Oyuncu silindi');if(editPlayer===id)resetPlayerForm();}catch(x){toast(errMsg(x));}

@@ -114,6 +114,7 @@ PAGES.tahmin=()=>{
         <h3 class="minihead">Takma adın</h3>
         <div class="row"><label class="fld"><span>Sıralamada görünecek ad</span><input id="nickIn" type="text" minlength="2" maxlength="24" value="${esc(FAN?.nick||'')}" placeholder="Örn. Kızılkule Kartalı" autocomplete="nickname"></label>
         <button type="button" class="btn sm" id="nickSave">${FAN?.nick?'Değiştir':'Başla'}</button></div>
+        ${FAN?.nick?`<p class="hint">${{ok:'<b>Takma adın onaylı</b>, sıralamada bu adla görünürsün.',bad:'<b>Takma adın uygun bulunmadı.</b> Başka bir ad seçene kadar sıralamada adın görünmez.',wait:'<b>Takma adın lig yönetiminin onayını bekliyor.</b> Onaylanana kadar sıralamada "'+anonName(FAN.uid)+'" olarak görünürsün; tahmin yapmaya şimdiden başlayabilirsin.'}[nickState(FAN.uid,FAN.nick)]}</p>`:''}
         <p class="hint">Hesap açman gerekmez; tahminlerin bu tarayıcıya bağlı kalır. Tarayıcı verilerini silersen tahminlerine yeniden ulaşamazsın.</p>
       </div>
       ${FAN?.nick?`<h2 class="subhead">Yaklaşan maçlar</h2>${days.length?days.map(d=>`<h3 class="minihead">${fmt(d).dm} ${fmt(d).wd}</h3><div class="panel">${upcoming.filter(m=>m.d===d).map(m=>{const p=FAN.p[m.id];
@@ -129,7 +130,7 @@ PAGES.tahmin=()=>{
 async function rebuildBoard(){
   if(!IS_ADMIN) return;
   const fans=await DB.list('fans');
-  const top=fans.map(([uid,f])=>{let pts=0,exact=0,n=0;for(const[mid,p] of Object.entries(f.p||{})){const x=predPts(p,sc(mid));if(x!=null){pts+=x;n++;if(x===3)exact++;}}return {uid,nick:f.nick||'?',pts,exact,n}})
+  const top=fans.map(([uid,f])=>{let pts=0,exact=0,n=0;for(const[mid,p] of Object.entries(f.p||{})){const x=predPts(p,sc(mid));if(x!=null){pts+=x;n++;if(x===3)exact++;}}return {uid,nick:nickState(uid,f.nick||'')==='ok'?f.nick:anonName(uid),pts,exact,n}})
     .filter(f=>f.n>0).sort((a,b)=>b.pts-a.pts||b.exact-a.exact||a.nick.localeCompare(b.nick,'tr')).slice(0,50);
   await DB.collection('agg').doc('board').set({top,updated:new Date().toISOString()});
 }

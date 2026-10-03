@@ -771,6 +771,9 @@ table.st tbody tr:hover{background:var(--surface-2)}
 .liveBar{box-shadow:0 14px 30px -14px rgba(215,38,30,.8)}
 
 @media (max-width:420px){.m{grid-template-columns:2.3rem minmax(0,1fr) 2.2rem minmax(0,1fr) 1.4rem;gap:6px;padding:9px 10px;font-size:.82rem}.m .t{font-size:.76rem}.m .gp{width:1.4rem;height:1.4rem;font-size:.82rem}.ev{padding-inline:10px}}
+.mypending{margin:16px 0 0;padding:12px 14px;border:1px dashed var(--line);border-radius:10px;font-size:.88rem}
+.mypending b{color:var(--led)}
+.apTeam{display:flex;justify-content:space-between;align-items:center;gap:10px;background:transparent!important;padding:10px 2px 2px!important;font-size:1rem}
 /* Altbilgi */
 footer{background:var(--night);color:var(--on-night-dim);border-top:3px solid var(--accent);margin-top:20px}
 footer b{color:var(--on-night)}
@@ -820,6 +823,7 @@ footer a,.flinks a{color:var(--glow)}
     </div>
     <div class="atabs" role="group" aria-label="Yönetim bölümleri">
       <button type="button" data-atab="maclar" aria-pressed="true">Maçlar</button>
+      <button type="button" data-atab="onaylar" aria-pressed="false">Onaylar <em class="cnt" id="apCount" hidden></em></button>
       <button type="button" data-atab="kadrolar" aria-pressed="false">Maç kadroları</button>
       <button type="button" data-atab="oyuncular" aria-pressed="false">Oyuncular</button>
       <button type="button" data-atab="takimbilgi" aria-pressed="false">Takım bilgileri</button>
@@ -829,6 +833,22 @@ footer a,.flinks a{color:var(--glow)}
       <button type="button" data-atab="sponsorlar" aria-pressed="false">Sponsorlar</button>
       <button type="button" data-atab="hesaplar" aria-pressed="false">Takım hesapları <em class="cnt" id="reqCount2" hidden></em></button>
       <button type="button" data-atab="ayarlar" aria-pressed="false">Ayarlar</button>
+    </div>
+
+    <p class="hint mypending" id="myPending" hidden></p>
+
+    <div class="admin-grid" data-apane="onaylar" hidden>
+      <div class="pane">
+        <h3>Onay bekleyen takım verileri</h3>
+        <p class="hint">Takım hesaplarının girdiği oyuncular, fotoğraflar, takım bilgileri ve maç kadroları siz onaylayana kadar sitede görünmez.</p>
+        <ul class="nlist" id="apList" style="max-height:560px"></ul>
+      </div>
+      <div class="pane">
+        <h3>Tahmin oyunu takma adları</h3>
+        <p class="hint">Bir takma ad siz onaylayana kadar sıralamada "Taraftar XXXX" olarak görünür. Reddedilen ad hiç gösterilmez. <span id="nkCount"></span></p>
+        <div class="row"><button type="button" class="btn ghost sm" id="nkReload">Listeyi yenile</button></div>
+        <ul class="nlist" id="nkList" style="max-height:480px"></ul>
+      </div>
     </div>
 
     <div class="admin-grid" data-apane="maclar">
@@ -1024,7 +1044,7 @@ footer a,.flinks a{color:var(--glow)}
     <div class="admin-grid" data-apane="hesaplar" hidden>
       <div class="pane">
         <h3>Bekleyen başvurular</h3>
-        <p class="hint">Takım temsilcileri sitedeki Giriş sayfasından hesap açıp başvurur. Onayladığınız hesap yalnızca seçtiğiniz mahallenin kadrosunu, fotoğraflarını, maç kadrolarını ve takım bilgilerini düzenleyebilir; maç sonucu giremez.</p>
+        <p class="hint">Takım temsilcileri sitedeki Giriş sayfasından hesap açıp başvurur. Onayladığınız hesap yalnızca seçtiğiniz mahalle için oyuncu, fotoğraf, maç kadrosu ve takım bilgisi gönderebilir; gönderdikleri Onaylar sekmesinde siz onaylayınca yayınlanır.</p>
         <ul class="nlist" id="reqList"></ul>
       </div>
       <div class="pane">
@@ -1158,7 +1178,7 @@ const MATCH_BY_ID=Object.fromEntries(ALL.map(m=>[m.id,m]));
 const KO_BY_ID=Object.fromEntries(KO_ALL.map(k=>[k.id,k]));
 
 /* ===================== Durum ===================== */
-const DATA={players:{},matches:{},news:{},teams:{},sponsors:{},weekly:{},settings:{},requests:{},managers:{}};
+const DATA={players:{},matches:{},news:{},teams:{},sponsors:{},weekly:{},settings:{},requests:{},managers:{},pending:{}};
 let DB=null, IS_ADMIN=false, MY_TEAM=null, PENDING=null;
 const PHOTOS={}, PHOTO_FULL={}, LOGOS={}, MEDIA={};
 let BOARD=[], BOARD_AT='';
@@ -1858,6 +1878,7 @@ PAGES.tahmin=()=>{
         <h3 class="minihead">Takma adın</h3>
         <div class="row"><label class="fld"><span>Sıralamada görünecek ad</span><input id="nickIn" type="text" minlength="2" maxlength="24" value="${esc(FAN?.nick||'')}" placeholder="Örn. Kızılkule Kartalı" autocomplete="nickname"></label>
         <button type="button" class="btn sm" id="nickSave">${FAN?.nick?'Değiştir':'Başla'}</button></div>
+        ${FAN?.nick?`<p class="hint">${{ok:'<b>Takma adın onaylı</b>, sıralamada bu adla görünürsün.',bad:'<b>Takma adın uygun bulunmadı.</b> Başka bir ad seçene kadar sıralamada adın görünmez.',wait:'<b>Takma adın lig yönetiminin onayını bekliyor.</b> Onaylanana kadar sıralamada "'+anonName(FAN.uid)+'" olarak görünürsün; tahmin yapmaya şimdiden başlayabilirsin.'}[nickState(FAN.uid,FAN.nick)]}</p>`:''}
         <p class="hint">Hesap açman gerekmez; tahminlerin bu tarayıcıya bağlı kalır. Tarayıcı verilerini silersen tahminlerine yeniden ulaşamazsın.</p>
       </div>
       ${FAN?.nick?`<h2 class="subhead">Yaklaşan maçlar</h2>${days.length?days.map(d=>`<h3 class="minihead">${fmt(d).dm} ${fmt(d).wd}</h3><div class="panel">${upcoming.filter(m=>m.d===d).map(m=>{const p=FAN.p[m.id];
@@ -1873,7 +1894,7 @@ PAGES.tahmin=()=>{
 async function rebuildBoard(){
   if(!IS_ADMIN) return;
   const fans=await DB.list('fans');
-  const top=fans.map(([uid,f])=>{let pts=0,exact=0,n=0;for(const[mid,p] of Object.entries(f.p||{})){const x=predPts(p,sc(mid));if(x!=null){pts+=x;n++;if(x===3)exact++;}}return {uid,nick:f.nick||'?',pts,exact,n}})
+  const top=fans.map(([uid,f])=>{let pts=0,exact=0,n=0;for(const[mid,p] of Object.entries(f.p||{})){const x=predPts(p,sc(mid));if(x!=null){pts+=x;n++;if(x===3)exact++;}}return {uid,nick:nickState(uid,f.nick||'')==='ok'?f.nick:anonName(uid),pts,exact,n}})
     .filter(f=>f.n>0).sort((a,b)=>b.pts-a.pts||b.exact-a.exact||a.nick.localeCompare(b.nick,'tr')).slice(0,50);
   await DB.collection('agg').doc('board').set({top,updated:new Date().toISOString()});
 }
@@ -2142,8 +2163,8 @@ function accountsList(){
     :'<li><span class="muted">Henüz onaylı takım hesabı yok.</span></li>';
 }
 function updateAdminBadge(){
-  const n=IS_ADMIN?Object.keys(DATA.requests||{}).length:0;
-  [$('#reqCount'),$('#reqCount2')].forEach(el=>{if(!el)return;el.hidden=!n;el.textContent=n;});
+  const n=IS_ADMIN?Object.keys(DATA.requests||{}).length:0, pn=IS_ADMIN?Object.keys(DATA.pending||{}).length:0;
+  [[$('#reqCount'),n+pn],[$('#reqCount2'),n],[$('#apCount'),pn]].forEach(([el,v])=>{if(!el)return;el.hidden=!v;el.textContent=v;});
 }
 async function saveMatch(){
   const id=$('#aMatch').value, tm=curTeams(), hs=$('#aHs').value, as=$('#aAs').value, st=$('#aStatus').value;
@@ -2182,6 +2203,12 @@ async function onSavePlayer(){
   if(no&&squadOf(tname).some(([id,p])=>p.no===no&&id!==editPlayer)){toast(`${no} numara bu takımda başka bir oyuncuda. Farklı numara seçin.`);return;}
   const body={team:tname,name,no,pos:$('#pPos').value,ban:IS_ADMIN?$('#pBan').value.trim():(old?.ban||'')};
   const b=$('#pAdd');b.disabled=true;
+  if(!IS_ADMIN){   // takım hesabı: onaya gönder
+    try{await submitPending('player',editPlayer||DB.newId(),{name,no,pos:$('#pPos').value,photo:pendingPhoto?pendingPhoto:(pendingPhoto===null&&editPlayer?'remove':'keep')});
+      toast(`${name} lig yönetiminin onayına gönderildi`);resetPlayerForm();$('#pName').focus();}
+    catch(e){toast(errMsg(e));}finally{b.disabled=false;}
+    return;
+  }
   try{
     let id=editPlayer;
     if(!id) id=DB.newId();
@@ -2202,8 +2229,11 @@ async function onBulk(){
   if(!lines.length){toast('Listeye en az bir oyuncu yazın.');return;}
   const b=$('#pBulkAdd');b.disabled=true;let n=0;
   try{for(const ln of lines){const m=ln.match(/^(\d{1,2})[\s.\-)]+(.+)$/);
-      await DB.aggSetK('players','p',DB.newId(),{team:$('#pTeam').value,name:(m?m[2]:ln).trim().slice(0,60),no:m?+m[1]:null,pos:'',ban:''});n++;}
-    $('#pBulk').value='';toast(`${n} oyuncu eklendi`);}
+      const nm=(m?m[2]:ln).trim().slice(0,60), nn=m?+m[1]:null;
+      if(IS_ADMIN) await DB.aggSetK('players','p',DB.newId(),{team:$('#pTeam').value,name:nm,no:nn,pos:'',ban:''});
+      else await DB.collection('pending').add({type:'player',key:DB.newId(),data:{name:nm,no:nn,pos:'',photo:'keep'},team:MY_TEAM,by:window.AML_AUTH.user.uid,at:new Date().toISOString()});
+      n++;}
+    $('#pBulk').value='';toast(IS_ADMIN?`${n} oyuncu eklendi`:`${n} oyuncu lig yönetiminin onayına gönderildi`);if(!IS_ADMIN)loadMyPending();}
   catch(e){toast(n?`${n} oyuncu eklendi, kalanlar eklenemedi.`:errMsg(e));}
   finally{b.disabled=false;}
 }
@@ -2220,6 +2250,12 @@ async function saveNews(){
 function resetNewsForm(){editNews=null;$('#nTitle').value='';$('#nBody').value='';$('#nPin').checked=false;$('#nFormTitle').textContent='Duyuru yayınla';$('#nSave').textContent='Yayınla';$('#nCancel').hidden=true;}
 async function saveTeamInfo(){
   const t=$('#tTeam').value, b=$('#tSave');b.disabled=true;
+  if(!IS_ADMIN){
+    try{await submitPending('team',t,{captain:$('#tCaptain').value,coach:$('#tCoach').value.trim(),colors:$('#tColors').value.trim(),note:$('#tNote').value.trim(),logo:pendingLogo||''});pendingLogo=null;
+      toast('Takım bilgileri lig yönetiminin onayına gönderildi');}
+    catch(e){toast(errMsg(e));}finally{b.disabled=false;}
+    return;
+  }
   try{
     await DB.aggSet('teams','t',t,{team:t,captain:$('#tCaptain').value,coach:$('#tCoach').value.trim(),colors:$('#tColors').value.trim(),note:$('#tNote').value.trim()});
     if(pendingLogo){await DB.aggSet('logos','l',t,pendingLogo);LOGOS[slug(t)]=pendingLogo;pendingLogo=null;}
@@ -2232,6 +2268,7 @@ function showTab(name){
   if(name==='takimbilgi') teamInfoForm();
   if(name==='oyuncular') playerList();
   if(name==='hesaplar') accountsList();
+  if(name==='onaylar'){approvalsList();nickAdminList(false);}
   if(name==='kadrolar') lineupMatches();
   if(name==='haftanin') weeklyForm();
   if(name==='galeri') galleryAdmin();
@@ -2239,10 +2276,10 @@ function showTab(name){
   if(name==='ayarlar'){const d=DATA.settings.discipline||{};$('#setY').value=d.yellowLimit??'';$('#setR').value=d.redBan??'';}
 }
 function applyRole(){
-  const allowed=IS_ADMIN?['maclar','kadrolar','oyuncular','takimbilgi','duyurular','haftanin','galeri','sponsorlar','hesaplar','ayarlar']:['oyuncular','kadrolar','takimbilgi'];
+  const allowed=IS_ADMIN?['maclar','onaylar','kadrolar','oyuncular','takimbilgi','duyurular','haftanin','galeri','sponsorlar','hesaplar','ayarlar']:['oyuncular','kadrolar','takimbilgi'];
   $$('[data-atab]').forEach(b=>b.hidden=!allowed.includes(b.dataset.atab));
   ['#pTeam','#tTeam'].forEach(s=>{const el=$(s);if(MY_TEAM){el.value=MY_TEAM;el.disabled=true;}else el.disabled=false;});
-  $('#pBanWrap').hidden=!IS_ADMIN;
+  $('#pBanWrap').hidden=!IS_ADMIN;$('#lClear').hidden=!IS_ADMIN;pendingNote();
   $('#panelEyebrow').textContent=IS_ADMIN?'Yönetim paneli':'Takım paneli';
   $('#panelTitle').textContent=IS_ADMIN?'Lig yönetimi':`${MY_TEAM} takım paneli`;
   const cur=$$('[data-atab]').find(b=>b.getAttribute('aria-pressed')==='true');
@@ -2250,7 +2287,7 @@ function applyRole(){
 }
 function initPanel(){
   teamOptions($('#aKoH'),true);teamOptions($('#aKoA'),true);teamOptions($('#pTeam'));teamOptions($('#tTeam'));
-  $('#pTeam').value=MY_TEAM||'Alara';$('#tTeam').value=MY_TEAM||'Alara';initExtraPanel();
+  $('#pTeam').value=MY_TEAM||'Alara';$('#tTeam').value=MY_TEAM||'Alara';initExtraPanel();initApprovals();
   $$('[data-atab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.atab)));
   $('#aMatch').addEventListener('change',loadMatch);
   $('#aKoH').addEventListener('change',()=>{adminSides();renderDraft()});
@@ -2291,6 +2328,7 @@ function initPanel(){
     const b=e.target.closest('[data-delp]'); if(!b) return;
     if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Emin misiniz?';setTimeout(()=>{b.classList.remove('arm');b.textContent='Sil'},4000);return;}
     const id=b.dataset.delp;
+    if(!IS_ADMIN){try{await submitPending('playerDel',id,{});toast('Silme isteği lig yönetiminin onayına gönderildi');}catch(x){toast(errMsg(x));}return;}
     try{const pt=DATA.players[id]?.team;
       if(PHOTOS[id]&&pt){await DB.collection('photos').doc(id).delete();await DB.mapDel('tphotos',pt,'p',id);delete PHOTOS[id];delete PHOTO_FULL[id];}
       await DB.aggDelK('players','p',id);toast('Oyuncu silindi');if(editPlayer===id)resetPlayerForm();}catch(x){toast(errMsg(x));}
@@ -2495,6 +2533,7 @@ async function saveLineup(){
   const start=order.filter(id=>lineDraft[id]==='start'), subs=order.filter(id=>lineDraft[id]==='sub');
   if(!start.length){toast('İlk kadroya en az bir oyuncu seçin.');return;}
   if(start.length>16||subs.length>20){toast('Kadro çok kalabalık: en fazla 16 ilk, 20 yedek.');return;}
+  if(!IS_ADMIN){try{await submitPending('lineup',`${mid}__${t}`,{match:mid,start,subs});toast('Kadro lig yönetiminin onayına gönderildi');}catch(e){toast(errMsg(e));}return;}
   try{await DB.collection('lineups').doc(`${mid}__${t}`).set({match:mid,team:t,start,subs,updated:new Date().toISOString()});
     delete LINEUPS[mid];toast(`${t} kadrosu kaydedildi`);}catch(e){toast(errMsg(e));}
 }
@@ -2595,6 +2634,112 @@ function initExtraPanel(){
   $('#setSave').addEventListener('click',async()=>{
     const y=Math.max(0,Math.min(10,parseInt($('#setY').value,10)||0)), r=Math.max(0,Math.min(5,parseInt($('#setR').value,10)||0));
     try{await DB.aggSet('misc','settings','discipline',{yellowLimit:y,redBan:r});toast('Disiplin kuralı kaydedildi');}catch(e){toast(errMsg(e));}
+  });
+}
+
+/* ===================== Onay süreci ===================== */
+// Takım hesapları doğrudan yayınlayamaz: değişiklik "pending" koleksiyonuna gider,
+// yönetici Onaylar sekmesinden onaylayınca siteye işlenir.
+let MY_PENDING=[], NICKS={ok:{},bad:{}}, NICK_FANS=null;
+const PEND_LBL={player:'Oyuncu',playerDel:'Oyuncu silme',team:'Takım bilgileri',lineup:'Maç kadrosu'};
+async function submitPending(type,key,data){
+  const A=window.AML_AUTH;
+  await DB.collection('pending').add({type,key,data,team:MY_TEAM,by:A.user.uid,at:new Date().toISOString()});
+  await loadMyPending();
+}
+async function loadMyPending(){
+  if(!MY_TEAM||!DB) return;
+  try{MY_PENDING=(await DB.where('pending','team',MY_TEAM)).sort((a,b)=>String(a[1].at).localeCompare(String(b[1].at)));}catch(e){MY_PENDING=[];}
+  if(panelReady){playerList();pendingNote();}
+}
+function pendingNote(){
+  const el=$('#myPending'); if(!el) return;
+  el.hidden=IS_ADMIN||!MY_TEAM;
+  if(el.hidden) return;
+  el.innerHTML=MY_PENDING.length?`<b>${MY_PENDING.length} değişiklik lig yönetiminin onayını bekliyor.</b> Onaylanınca sitede görünür.<ul class="nlist" style="margin-top:8px">${MY_PENDING.map(([id,p])=>`<li><span>${pendSummary(p)}</span><button type="button" data-pcancel="${id}">Geri al</button></li>`).join('')}</ul>`
+    :'Girdiğiniz bilgiler lig yönetimi onayladıktan sonra sitede görünür. Şu an onay bekleyen değişikliğiniz yok.';
+}
+function pendSummary(p){
+  const d=p.data||{};
+  if(p.type==='player'){const old=DATA.players[p.key];return `<b>${old?'Oyuncu düzenleme':'Yeni oyuncu'}:</b> ${d.no?'#'+d.no+' ':''}${esc(d.name)}${d.pos?' · '+esc(d.pos):''}${old&&old.name!==d.name?` <small class="muted">(eski: ${esc(old.name)})</small>`:''}${d.photo&&d.photo.thumb?' · fotoğraflı':d.photo==='remove'?' · fotoğraf kaldırılacak':''}`;}
+  if(p.type==='playerDel') return `<b>Oyuncu silme:</b> ${esc(DATA.players[p.key]?.name||'silinmiş oyuncu')}`;
+  if(p.type==='team') return `<b>Takım bilgileri:</b> ${[d.coach&&'sorumlu '+esc(d.coach),d.colors&&'renkler '+esc(d.colors),d.captain&&'kaptan '+esc(pName(d.captain)),d.note&&'tanıtım yazısı',d.logo&&'logo'].filter(Boolean).join(', ')||'boş'}`;
+  if(p.type==='lineup'){const m=matchInfo(d.match);return `<b>Maç kadrosu:</b> ${m?esc(hName(m))+' – '+esc(aName(m)):''} · ${d.start.length} ilk, ${d.subs.length} yedek`;}
+  return esc(p.type);
+}
+
+/* ---------- Yönetici: onay ekranı ---------- */
+function approvalsList(){
+  if(!IS_ADMIN||!panelReady) return;
+  const list=Object.entries(DATA.pending||{}).sort((a,b)=>a[1].team.localeCompare(b[1].team,'tr')||String(a[1].at).localeCompare(String(b[1].at)));
+  const teams=[...new Set(list.map(([,p])=>p.team))];
+  $('#apList').innerHTML=list.length?teams.map(t=>`<li class="apTeam"><b>${esc(t)}</b><button type="button" class="btn sm" data-apall="${esc(t)}">Bu takımın hepsini onayla</button></li>`
+      +list.filter(([,p])=>p.team===t).map(([id,p])=>`<li class="reqRow" style="display:grid">
+        <span style="display:flex;gap:10px;align-items:center">${p.type==='player'&&p.data.photo&&p.data.photo.thumb?`<img src="${p.data.photo.thumb}" alt="" class="av" style="width:44px;height:44px">`:p.type==='team'&&p.data.logo?`<img src="${p.data.logo}" alt="" class="av" style="width:44px;height:44px;border-radius:8px">`:''}<span>${pendSummary(p)}<br><small class="muted">${fmtDate(p.at)}</small>${p.type==='lineup'?`<br><small>${p.data.start.map(x=>esc(pName(x))).join(', ')}</small>`:''}${p.type==='team'&&p.data.note?`<br><small>${esc(p.data.note)}</small>`:''}</span></span>
+        <span class="row"><button type="button" class="btn sm" data-apok="${id}">Onayla</button><button type="button" data-apno="${id}">Reddet</button></span></li>`).join('')).join('')
+    :'<li><span class="muted">Onay bekleyen değişiklik yok.</span></li>';
+}
+async function applyPending(id){
+  const p=DATA.pending[id]; if(!p) return;
+  const d=p.data||{}, t=p.team;
+  if(p.type==='player'){
+    const old=DATA.players[p.key];
+    await DB.aggSetK('players','p',p.key,{team:t,name:String(d.name||'').slice(0,60),no:d.no||null,pos:d.pos||'',ban:old?.ban||''});
+    if(d.photo&&d.photo.thumb){await DB.collection('photos').doc(p.key).set({team:t,data:d.photo.full});await DB.mapSet('tphotos',t,'p',p.key,d.photo.thumb);PHOTOS[p.key]=d.photo.thumb;PHOTO_FULL[p.key]=d.photo.full;}
+    else if(d.photo==='remove'){await DB.collection('photos').doc(p.key).delete();await DB.mapDel('tphotos',t,'p',p.key);delete PHOTOS[p.key];delete PHOTO_FULL[p.key];}
+  }else if(p.type==='playerDel'){
+    if(DATA.players[p.key]?.team===t){await DB.collection('photos').doc(p.key).delete();await DB.mapDel('tphotos',t,'p',p.key);await DB.aggDelK('players','p',p.key);}
+  }else if(p.type==='team'){
+    await DB.aggSet('teams','t',t,{team:t,captain:d.captain||'',coach:d.coach||'',colors:d.colors||'',note:d.note||''});
+    if(d.logo) await DB.aggSet('logos','l',t,d.logo);
+  }else if(p.type==='lineup'){
+    await DB.collection('lineups').doc(`${d.match}__${t}`).set({match:d.match,team:t,start:d.start||[],subs:d.subs||[],updated:new Date().toISOString()});
+    delete LINEUPS[d.match];
+  }
+  await DB.collection('pending').doc(id).delete();
+}
+
+/* ---------- Takma ad denetimi ---------- */
+const nickState=(uid,nick)=>NICKS.ok[uid]===nick?'ok':NICKS.bad[uid]===nick?'bad':'wait';
+const anonName=uid=>'Taraftar '+String(uid).replace(/[^A-Za-z0-9]/g,'').slice(0,4).toUpperCase();
+async function nickAdminList(reload){
+  if(!IS_ADMIN||!panelReady) return;
+  if(reload||!NICK_FANS){$('#nkList').innerHTML='<li><span class="muted">Yükleniyor…</span></li>';try{NICK_FANS=await DB.list('fans');}catch(e){NICK_FANS=[];}}
+  const rows=NICK_FANS.map(([uid,f])=>({uid,nick:f.nick||'',n:Object.keys(f.p||{}).length,st:nickState(uid,f.nick||'')}));
+  const order={wait:0,bad:1,ok:2};
+  rows.sort((a,b)=>order[a.st]-order[b.st]||a.nick.localeCompare(b.nick,'tr'));
+  const wait=rows.filter(r=>r.st==='wait').length;
+  $('#nkCount').textContent=rows.length?`${rows.length} taraftar · ${wait} onay bekliyor`:'';
+  $('#nkList').innerHTML=rows.length?rows.map(r=>`<li><span><b>${esc(r.nick)}</b> <small class="muted">${r.n} tahmin · ${{ok:'onaylı',bad:'reddedildi',wait:'onay bekliyor'}[r.st]}</small></span>${r.st!=='ok'?`<button type="button" class="btn sm" data-nkok="${r.uid}">Onayla</button>`:''}${r.st!=='bad'?`<button type="button" data-nkno="${r.uid}">Reddet</button>`:''}</li>`).join('')
+    :'<li><span class="muted">Henüz tahmin oyununa katılan yok.</span></li>';
+}
+async function setNick(uid,ok){
+  const f=(NICK_FANS||[]).find(x=>x[0]===uid); if(!f) return;
+  const nick=f[1].nick||'';
+  if(ok){await DB.aggSet('nicks','ok',uid,nick);await DB.aggDel('nicks','bad',uid);NICKS.ok[uid]=nick;delete NICKS.bad[uid];}
+  else{await DB.aggSet('nicks','bad',uid,nick);await DB.aggDel('nicks','ok',uid);NICKS.bad[uid]=nick;delete NICKS.ok[uid];}
+  nickAdminList(false);
+  rebuildBoard().catch(()=>{});
+}
+
+function initApprovals(){
+  $('#apList').addEventListener('click',async e=>{
+    const ok=e.target.closest('[data-apok]'), no=e.target.closest('[data-apno]'), all=e.target.closest('[data-apall]');
+    try{
+      if(ok){ok.disabled=true;await applyPending(ok.dataset.apok);toast('Onaylandı ve yayınlandı');scheduleRender();}
+      else if(no){if(!armed(no,'Reddet'))return;await DB.collection('pending').doc(no.dataset.apno).delete();toast('Reddedildi');}
+      else if(all){all.disabled=true;const ids=Object.entries(DATA.pending).filter(([,p])=>p.team===all.dataset.apall).sort((a,b)=>String(a[1].at).localeCompare(String(b[1].at))).map(([id])=>id);
+        let n=0;for(const id of ids){await applyPending(id);n++;}toast(`${n} değişiklik onaylandı`);scheduleRender();}
+    }catch(x){toast(errMsg(x));approvalsList();}
+  });
+  $('#nkList').addEventListener('click',async e=>{
+    const ok=e.target.closest('[data-nkok]'), no=e.target.closest('[data-nkno]');
+    try{if(ok)await setNick(ok.dataset.nkok,true);else if(no)await setNick(no.dataset.nkno,false);}catch(x){toast(errMsg(x));}
+  });
+  $('#nkReload').addEventListener('click',()=>nickAdminList(true));
+  document.addEventListener('click',async e=>{
+    const c=e.target.closest('[data-pcancel]'); if(!c) return;
+    try{await DB.collection('pending').doc(c.dataset.pcancel).delete();toast('Değişiklik geri alındı');await loadMyPending();}catch(x){toast(errMsg(x));}
   });
 }
 
@@ -2785,10 +2930,11 @@ if(!C.firebase||!C.firebase.apiKey){
         }
       }
       if(role.admin){
-        ['requests','managers'].forEach(k=>adminSubs.push(DB.collection(k).onSnapshot(s=>{DATA[k]=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));if(panelReady)accountsList();updateAdminBadge();},()=>{})));
+        ['requests','managers','pending'].forEach(k=>adminSubs.push(DB.collection(k).onSnapshot(s=>{DATA[k]=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));if(panelReady){accountsList();approvalsList();}updateAdminBadge();},()=>{})));
       }
       if(u) loadFan();
       setRole(role);
+      if(role.team) loadMyPending();
     });
 
     // Ziyaretçi başına okuma: agg koleksiyonundaki ~12 toplu belge + sponsorlar
@@ -2807,6 +2953,7 @@ if(!C.firebase||!C.firebase.apiKey){
         else if(id==='logos'){Object.keys(LOGOS).forEach(k=>delete LOGOS[k]);Object.entries(x.l||{}).forEach(([name,v])=>{LOGOS[slug(name)]=v});}
         else if(id==='news') DATA.news=x.n||{};
         else if(id==='misc'){DATA.weekly=x.weekly||{};DATA.settings=x.settings||{};}
+        else if(id==='nicks'){NICKS={ok:x.ok||{},bad:x.bad||{}};}
         else if(id==='board'){BOARD=Array.isArray(x.top)?x.top:[];BOARD_AT=x.updated||'';}
       });
       if(!firstAgg) notifyChanges(DATA.matches,matches);

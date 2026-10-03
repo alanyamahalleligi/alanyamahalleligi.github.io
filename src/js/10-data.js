@@ -92,7 +92,7 @@ const MATCH_BY_ID=Object.fromEntries(ALL.map(m=>[m.id,m]));
 const KO_BY_ID=Object.fromEntries(KO_ALL.map(k=>[k.id,k]));
 
 /* ===================== Durum ===================== */
-const DATA={players:{},matches:{},news:{},teams:{},sponsors:{},weekly:{},settings:{},requests:{},managers:{}};
+const DATA={players:{},matches:{},news:{},teams:{},sponsors:{},weekly:{},settings:{},requests:{},managers:{},pending:{}};
 let DB=null, IS_ADMIN=false, MY_TEAM=null, PENDING=null;
 const PHOTOS={}, PHOTO_FULL={}, LOGOS={}, MEDIA={};
 let BOARD=[], BOARD_AT='';

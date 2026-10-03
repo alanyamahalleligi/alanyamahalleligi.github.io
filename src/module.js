@@ -48,10 +48,11 @@ if(!C.firebase||!C.firebase.apiKey){
         }
       }
       if(role.admin){
-        ['requests','managers'].forEach(k=>adminSubs.push(DB.collection(k).onSnapshot(s=>{DATA[k]=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));if(panelReady)accountsList();updateAdminBadge();},()=>{})));
+        ['requests','managers','pending'].forEach(k=>adminSubs.push(DB.collection(k).onSnapshot(s=>{DATA[k]=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));if(panelReady){accountsList();approvalsList();}updateAdminBadge();},()=>{})));
       }
       if(u) loadFan();
       setRole(role);
+      if(role.team) loadMyPending();
     });
 
     // Ziyaretçi başına okuma: agg koleksiyonundaki ~12 toplu belge + sponsorlar
@@ -70,6 +71,7 @@ if(!C.firebase||!C.firebase.apiKey){
         else if(id==='logos'){Object.keys(LOGOS).forEach(k=>delete LOGOS[k]);Object.entries(x.l||{}).forEach(([name,v])=>{LOGOS[slug(name)]=v});}
         else if(id==='news') DATA.news=x.n||{};
         else if(id==='misc'){DATA.weekly=x.weekly||{};DATA.settings=x.settings||{};}
+        else if(id==='nicks'){NICKS={ok:x.ok||{},bad:x.bad||{}};}
         else if(id==='board'){BOARD=Array.isArray(x.top)?x.top:[];BOARD_AT=x.updated||'';}
       });
       if(!firstAgg) notifyChanges(DATA.matches,matches);

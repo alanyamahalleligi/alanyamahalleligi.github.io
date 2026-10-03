@@ -25,45 +25,24 @@ service cloud.firestore {
     }
 
     // ---- Toplu belgeler: ziyaretçi başına okuma sayısını düşük tutmak için ----
-    // agg/m-1..m-5, m-ko : {m: {maçId: {...}}}        (yalnızca yönetici)
-    // agg/players        : {p: {oyuncuId: {...}}}      (yönetici; takım hesabı kendi oyuncusunu)
-    // agg/teams          : {t: {takım adı: {...}}}     (yönetici; takım hesabı kendi takımını)
-    // agg/logos          : {l: {takım adı: dataURL}}   (yönetici; takım hesabı kendi logosunu)
-    // agg/news, agg/misc, agg/board                    (yalnızca yönetici)
+    // agg/m-1..m-5, m-ko {m}, players {p}, teams {t}, logos {l}, news {n}, misc, board, nicks
+    // Hepsini yalnızca yönetici yazar. Takım hesapları değişikliklerini "pending" koleksiyonuna
+    // gönderir; yönetici onaylayınca buraya işlenir.
     match /agg/{docId} {
       allow read: if true;
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin()
-        || (docId == 'players' && managerPlayerEdit())
-        || (docId == 'teams' && managerTeamEdit())
-        || (docId == 'logos' && managerLogoEdit());
+      allow write: if isAdmin();
+    }
 
-      // Kurallar bir kümenin elemanını okuyamadığı için istemci değiştirdiği oyuncunun
-      // kimliğini "lk" alanına yazar; kural yalnızca o anahtarın değiştiğini doğrular.
-      function managerPlayerEdit() {
-        let keys = request.resource.data.p.diff(resource.data.p).affectedKeys();
-        let k = request.resource.data.lk;
-        let hadIt = k in resource.data.p;
-        let hasIt = k in request.resource.data.p;
-        return isManager() && k is string
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['p', 'lk'])
-          && keys.hasOnly([k])
-          && (!hadIt || resource.data.p[k].team == myTeam())
-          && (!hasIt || (request.resource.data.p[k].team == myTeam()
-                && smallStr(request.resource.data.p[k].name, 60)
-                && request.resource.data.p[k].name.size() > 0
-                && request.resource.data.p[k].get('ban', '') == (hadIt ? resource.data.p[k].get('ban', '') : '')));
-      }
-      function managerTeamEdit() {
-        let keys = request.resource.data.t.diff(resource.data.t).affectedKeys();
-        return isManager() && onlyField('t') && keys.hasOnly([myTeam()])
-          && request.resource.data.t[myTeam()].team == myTeam();
-      }
-      function managerLogoEdit() {
-        let keys = request.resource.data.l.diff(resource.data.l).affectedKeys();
-        return isManager() && onlyField('l') && keys.hasOnly([myTeam()])
-          && jpeg(request.resource.data.l[myTeam()], 20000);
-      }
+    // Takım hesaplarının onay bekleyen değişiklikleri
+    match /pending/{id} {
+      allow read: if isAdmin() || (isManager() && resource.data.team == myTeam());
+      allow create: if isManager()
+        && request.resource.data.team == myTeam()
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.type in ['player', 'playerDel', 'team', 'lineup']
+        && smallStr(request.resource.data.key, 120)
+        && request.resource.data.data is map;
+      allow delete: if isAdmin() || (isManager() && resource.data.team == myTeam());
     }
 
     // Maç başlama saatleri (tahmin ve oylama kilidi)
@@ -72,31 +51,18 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Takımın küçük oyuncu fotoğrafları: belge kimliği takım adı, {team, p: {oyuncuId: dataURL}}
-    // Belgeleri yönetici oluşturur; takım hesabı yalnızca kendi belgesini günceller.
+    // Oyuncu fotoğrafları ve maç kadroları: yalnızca yönetici yazar (onay sonrası)
     match /tphotos/{team} {
       allow read: if true;
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin()
-        || (isManagerOf(team) && onlyField('p') && request.resource.data.team == resource.data.team);
+      allow write: if isAdmin();
     }
-    // Oyuncunun büyük fotoğrafı (yalnızca oyuncu sayfasında okunur)
     match /photos/{playerId} {
       allow read: if true;
-      allow create, update: if jpeg(request.resource.data.data, 150000)
-        && (isAdmin() || (isManagerOf(request.resource.data.team)
-                          && (resource == null || resource.data.team == request.resource.data.team)));
-      allow delete: if isAdmin() || isManagerOf(resource.data.team);
+      allow write: if isAdmin();
     }
-
-    // Maç kadroları: belge kimliği "<maçId>__<takım adı>"
     match /lineups/{lineupId} {
       allow read: if true;
-      allow create, update: if (isAdmin() || isManagerOf(request.resource.data.team))
-        && lineupId == request.resource.data.match + '__' + request.resource.data.team
-        && request.resource.data.start is list && request.resource.data.start.size() <= 16
-        && request.resource.data.subs is list && request.resource.data.subs.size() <= 20;
-      allow delete: if isAdmin() || isManagerOf(resource.data.team);
+      allow write: if isAdmin();
     }
 
     match /sponsors/{sid} {
