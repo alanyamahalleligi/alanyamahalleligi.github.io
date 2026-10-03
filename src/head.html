@@ -811,6 +811,74 @@ footer{border-top:0}
 .page-head .btn.line,.teamHero .btn.line,.playerHero .btn.line,.matchHero .btn.line{background:rgba(255,255,255,.08)}
 .subhead::before{background:linear-gradient(var(--accent),#ff9a3d)}
 @media print{.page-head,.teamHero,.playerHero,.matchHero{background-image:none!important}}
+
+/* ===== v8: gündüz modu aydınlık, gece modu koyu ===== */
+:root{--night:#ffffff;--night-2:#dcf0f1;--on-night:#0d2330;--on-night-dim:#566a74;--glow:#0b6f7a;
+  --pat-star:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%230d2330' stroke-opacity='.05'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");--pat-tower:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Cg fill='%230b6f7a' fill-opacity='.10'%3E%3Cpath d='M22 150l6-92 14-4h36l14 4 6 92z'/%3E%3Cpath d='M24 58l2-14h68l2 14zM28 44V34h8v10zM42 44V34h8v10zM56 44V34h8v10zM70 44V34h8v10zM84 44V34h8v10zM42 34l2-18h32l2 18zM46 16V8h6v8zM57 16V8h6v8zM68 16V8h6v8z'/%3E%3C/g%3E%3C/svg%3E");
+  --hero-bg:radial-gradient(620px 380px at 84% 96%,rgba(255,205,96,.42),transparent 70%),linear-gradient(180deg,#f4fbfb 0%,#d6f0f2 55%,#aee1e6 100%);
+  --hero-n:var(--accent);--hero-season:var(--sea);--hero-shadow:none;--hero-board:var(--board);--score:var(--accent);
+  --banner-glow:radial-gradient(420px 220px at 100% 0,rgba(255,205,96,.28),transparent 70%);--team-mix:26%;
+  --footer-bg:linear-gradient(180deg,#dcf0f1,#c6e6e9);--top-shadow:0 8px 20px -16px rgba(13,35,48,.35);
+  --sc-stars:0;--sc-moon:#ffc94d;--sc-far:rgba(11,111,122,.13);--sc-hill:#6f9a78;--sc-wall:#a8946f;--sc-palm:#24574a;--sc-sea1:#3cc3cd;--sc-sea2:#1b98a6;--sc-stone:#c4ab84;--sc-arch:#6b5437;--veil:color-mix(in srgb,var(--on-night) 6%,transparent);--veil-2:color-mix(in srgb,var(--on-night) 12%,transparent);--veil-line:color-mix(in srgb,var(--on-night) 17%,transparent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--night:#0a1a26;--night-2:#123149;--on-night:#eaf6f4;--on-night-dim:#9fbcc4;--glow:#5fd0d6;
+  --pat-star:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");--pat-tower:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Cg fill='%23fff' fill-opacity='.09'%3E%3Cpath d='M22 150l6-92 14-4h36l14 4 6 92z'/%3E%3Cpath d='M24 58l2-14h68l2 14zM28 44V34h8v10zM42 44V34h8v10zM56 44V34h8v10zM70 44V34h8v10zM84 44V34h8v10zM42 34l2-18h32l2 18zM46 16V8h6v8zM57 16V8h6v8zM68 16V8h6v8z'/%3E%3C/g%3E%3C/svg%3E");
+  --hero-bg:radial-gradient(520px 300px at 12% -40px,rgba(255,236,170,.22),transparent 70%),radial-gradient(520px 300px at 88% -40px,rgba(255,236,170,.2),transparent 70%),radial-gradient(900px 500px at 50% 120%,rgba(56,188,196,.35),transparent 70%),linear-gradient(165deg,#0a1a26 0%,#123149 60%,#0d4a58 130%);
+  --hero-n:#ff7a55;--hero-season:var(--led);--hero-shadow:0 6px 30px rgba(0,0,0,.35);--hero-board:rgba(4,12,18,.6);--score:var(--led);
+  --banner-glow:radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.14),transparent 70%);--team-mix:60%;
+  --footer-bg:linear-gradient(180deg,#0a1a26,#06121b);--top-shadow:0 8px 24px -16px rgba(0,0,0,.6);
+  --sc-stars:1;--sc-moon:#ffe9b0;--sc-far:rgba(255,255,255,.045);--sc-hill:#0b2334;--sc-wall:rgba(159,188,196,.6);--sc-palm:#071925;--sc-sea1:#0f6e7a;--sc-sea2:#0a3d4c;--sc-stone:#1c4256;--sc-arch:#051119}}
+:root[data-theme="dark"]{--night:#0a1a26;--night-2:#123149;--on-night:#eaf6f4;--on-night-dim:#9fbcc4;--glow:#5fd0d6;
+  --pat-star:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.07'%3E%3Crect x='20' y='20' width='24' height='24'/%3E%3Crect x='20' y='20' width='24' height='24' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");--pat-tower:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 150'%3E%3Cg fill='%23fff' fill-opacity='.09'%3E%3Cpath d='M22 150l6-92 14-4h36l14 4 6 92z'/%3E%3Cpath d='M24 58l2-14h68l2 14zM28 44V34h8v10zM42 44V34h8v10zM56 44V34h8v10zM70 44V34h8v10zM84 44V34h8v10zM42 34l2-18h32l2 18zM46 16V8h6v8zM57 16V8h6v8zM68 16V8h6v8z'/%3E%3C/g%3E%3C/svg%3E");
+  --hero-bg:radial-gradient(520px 300px at 12% -40px,rgba(255,236,170,.22),transparent 70%),radial-gradient(520px 300px at 88% -40px,rgba(255,236,170,.2),transparent 70%),radial-gradient(900px 500px at 50% 120%,rgba(56,188,196,.35),transparent 70%),linear-gradient(165deg,#0a1a26 0%,#123149 60%,#0d4a58 130%);
+  --hero-n:#ff7a55;--hero-season:var(--led);--hero-shadow:0 6px 30px rgba(0,0,0,.35);--hero-board:rgba(4,12,18,.6);--score:var(--led);
+  --banner-glow:radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.14),transparent 70%);--team-mix:60%;
+  --footer-bg:linear-gradient(180deg,#0a1a26,#06121b);--top-shadow:0 8px 24px -16px rgba(0,0,0,.6);
+  --sc-stars:1;--sc-moon:#ffe9b0;--sc-far:rgba(255,255,255,.045);--sc-hill:#0b2334;--sc-wall:rgba(159,188,196,.6);--sc-palm:#071925;--sc-sea1:#0f6e7a;--sc-sea2:#0a3d4c;--sc-stone:#1c4256;--sc-arch:#051119}
+.top{background:color-mix(in srgb,var(--night) 92%,transparent);box-shadow:var(--top-shadow)}
+nav.links a{color:var(--on-night)}
+nav.links a:hover{background:var(--veil-2)}
+nav.links a[aria-current]{background:var(--led);color:#1b1206}
+.iconBtn,.adminBtn{background:var(--veil);border-color:var(--veil-line);color:var(--on-night)}
+.iconBtn:hover,.adminBtn:hover{background:var(--veil-2)}
+@media (max-width:760px){nav.links a{background:var(--veil);border-color:var(--veil-line)}}
+.hero{color:var(--on-night);background:var(--hero-bg)}
+.hero::before{background-image:var(--pat-star)}
+.hero h1{color:var(--on-night);text-shadow:var(--hero-shadow)}
+.hero h1 .n{color:var(--hero-n)}
+.hero h1 .l2{-webkit-text-stroke:2px var(--on-night)}
+.hero .season{color:var(--hero-season)}
+.hero .lede{color:var(--on-night-dim)}
+.hero .fact b{color:var(--on-night)}
+.hero .live{background:var(--veil);border-color:var(--veil-line);color:var(--on-night)}
+.hero .board{background:var(--hero-board);border-color:var(--veil-line)}
+.scene .scStars{opacity:var(--sc-stars)}
+.scene .scMoon{fill:var(--sc-moon)}
+.scene .scFar{fill:var(--sc-far)}
+.scene .scHill{fill:var(--sc-hill)}
+.scene .scWallS{stroke:var(--sc-wall)}
+.scene .scWallF{fill:var(--sc-wall)}
+.scene .scPalm{stroke:var(--sc-palm)}
+.scene .scStone{fill:var(--sc-stone)}
+.scene .scArch{fill:var(--sc-arch)}
+.scene .scBoat{fill:var(--sc-palm)}
+.scene .scMast{stroke:var(--sc-palm)}
+.page-head,.teamHero,.playerHero{color:var(--on-night);border:1px solid var(--veil-line);
+  background-image:var(--pat-tower),var(--pat-star),var(--banner-glow),linear-gradient(135deg,var(--night),var(--night-2))}
+.teamHero{background-image:var(--pat-tower),var(--pat-star),var(--banner-glow),linear-gradient(135deg,var(--night) 25%,color-mix(in srgb,var(--g,var(--night-2)) var(--team-mix),var(--night)))}
+.page-head .ptitle,.teamHero .ptitle,.playerHero .ptitle{color:var(--on-night)}
+.page-head p,.playerHero .muted{color:var(--on-night-dim)}
+.page-head .btn.line,.teamHero .btn.line,.playerHero .btn.line,.matchHero .btn.line{background:var(--veil);border-color:var(--veil-line);color:var(--on-night)}
+.teamHero .tbadge.xl,.playerHero .av.xl,.matchHero .tbadge.lg{box-shadow:0 0 0 4px var(--veil-line),0 16px 30px -16px rgba(0,0,0,.45)}
+.matchHero{color:var(--on-night);border:1px solid var(--veil-line);
+  background-image:var(--pat-star),var(--banner-glow),linear-gradient(165deg,var(--night),var(--night-2));background-repeat:repeat,no-repeat,no-repeat;background-position:0 0;background-size:64px 64px,auto,auto}
+.matchHero .meta{color:var(--on-night-dim)}
+.matchHero .tn{color:var(--on-night)}
+.matchHero .sc{color:var(--score);text-shadow:0 0 34px color-mix(in srgb,var(--score) 35%,transparent)}
+.matchHero .sc small{color:var(--on-night-dim)}
+.tabs button[aria-pressed="true"],.tabs a[aria-current]{background:var(--ink);color:var(--bg)}
+footer{background-image:var(--pat-star),var(--footer-bg);color:var(--on-night-dim)}
+footer b{color:var(--on-night)}
+@media print{.page-head,.teamHero,.playerHero,.matchHero{background-image:none!important;border:0}}
 </style>
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <script src="/firebase-config.js"></script>

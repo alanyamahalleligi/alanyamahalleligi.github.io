@@ -32,28 +32,28 @@ function liveBarHtml(){
 }
 const SKYLINE=`<svg class="scene" viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
   <defs>
-    <linearGradient id="scSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f6e7a"/><stop offset="1" stop-color="#0a3d4c"/></linearGradient>
+    <linearGradient id="scSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sc-sea1)"/><stop offset="1" style="stop-color:var(--sc-sea2)"/></linearGradient>
     <radialGradient id="scMoon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe9b0" stop-opacity=".35"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
   </defs>
-  <g fill="#fff">
+  <g fill="#fff" class="scStars">
     <circle cx="60" cy="40" r="1.2" opacity=".7"/><circle cx="150" cy="78" r=".9" opacity=".5"/><circle cx="230" cy="30" r="1.4" opacity=".8"/><circle cx="320" cy="62" r="1" opacity=".5"/>
     <circle cx="410" cy="24" r="1.1" opacity=".7"/><circle cx="560" cy="44" r="1.3" opacity=".6"/><circle cx="660" cy="18" r=".9" opacity=".8"/><circle cx="740" cy="70" r="1" opacity=".5"/>
     <circle cx="830" cy="36" r="1.4" opacity=".7"/><circle cx="930" cy="60" r=".9" opacity=".6"/><circle cx="1010" cy="26" r="1.2" opacity=".8"/><circle cx="1090" cy="84" r="1" opacity=".5"/>
     <circle cx="1290" cy="40" r="1.1" opacity=".7"/><circle cx="1370" cy="76" r="1.3" opacity=".6"/><circle cx="1410" cy="22" r=".9" opacity=".8"/><circle cx="500" cy="80" r=".8" opacity=".5"/>
   </g>
   <circle cx="1180" cy="60" r="70" fill="url(#scMoon)"/>
-  <circle cx="1180" cy="60" r="24" fill="#ffe9b0"/>
+  <circle cx="1180" cy="60" r="24" class="scMoon"/>
   <!-- Toroslar -->
-  <path d="M0 176 90 124l80 30 90-56 80 44 90-34 90 44 100-32 100 38 100-32 80 26 100-40 100 36 100-42 100 36 140-28V260H0Z" fill="#fff" opacity=".045"/>
-  <path d="M0 200 140 160l120 30 150-44 130 40 160-30 170 44 150-36 160 30 260-34V260H0Z" fill="#fff" opacity=".04"/>
+  <path d="M0 176 90 124l80 30 90-56 80 44 90-34 90 44 100-32 100 38 100-32 80 26 100-40 100 36 100-42 100 36 140-28V260H0Z" class="scFar"/>
+  <path d="M0 200 140 160l120 30 150-44 130 40 160-30 170 44 150-36 160 30 260-34V260H0Z" class="scFar"/>
   <!-- Kale yarımadası -->
-  <path d="M120 234c80-4 130-32 200-62 60-28 100-60 160-74 60-12 120-4 160 16 60 28 100 64 160 88 60 20 120 28 180 32Z" fill="#0b2334"/>
-  <path d="M300 182c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" stroke="#9fbcc4" stroke-opacity=".55" stroke-width="3"/>
-  <path d="M300 178c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" stroke="#9fbcc4" stroke-opacity=".55" stroke-width="5" stroke-dasharray="6 6"/>
-  <path d="M484 96V78h6v-6h6v6h7v-6h6v6h7v-6h6v6h4v18Z" fill="#9fbcc4" fill-opacity=".7"/>
-  <rect x="396" y="118" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/><rect x="606" y="100" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/><rect x="700" y="144" width="12" height="16" fill="#9fbcc4" fill-opacity=".55"/>
+  <path d="M120 234c80-4 130-32 200-62 60-28 100-60 160-74 60-12 120-4 160 16 60 28 100 64 160 88 60 20 120 28 180 32Z" class="scHill"/>
+  <path d="M300 182c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" class="scWallS" stroke-width="3"/>
+  <path d="M300 178c60-30 110-62 170-80 60-14 120-8 166 10 54 24 94 58 144 82" fill="none" class="scWallS" stroke-width="5" stroke-dasharray="6 6"/>
+  <path d="M484 96V78h6v-6h6v6h7v-6h6v6h7v-6h6v6h4v18Z" class="scWallF"/>
+  <rect x="396" y="118" width="12" height="16" class="scWallF"/><rect x="606" y="100" width="12" height="16" class="scWallF"/><rect x="700" y="144" width="12" height="16" class="scWallF"/>
   <!-- Palmiyeler -->
-  <g fill="none" stroke="#071925" stroke-linecap="round">
+  <g fill="none" class="scPalm" stroke-linecap="round">
     <path d="M190 234c2-18 6-28 12-40" stroke-width="5"/>
     <path d="M202 194c-10-8-22-8-30-2M202 194c-6-12-18-18-28-16M202 194c2-12 10-20 20-22M202 194c10-8 22-8 30-2M202 194c8-2 18 2 24 10M202 194c-8-2-18 2-24 10" stroke-width="3.5"/>
     <path d="M244 234c0-12 2-20 6-28" stroke-width="4"/>
@@ -79,12 +79,12 @@ const SKYLINE=`<svg class="scene" viewBox="0 0 1440 260" preserveAspectRatio="xM
     <path d="M854 92h18l-4 5 4 5h-18z" fill="#e30a17"/>
   </g>
   <!-- Tersane -->
-  <path d="M908 234v-20h100v20z" fill="#1c4256"/>
-  <path d="M913 234v-9a7 7 0 0 1 14 0v9zM932 234v-9a7 7 0 0 1 14 0v9zM951 234v-9a7 7 0 0 1 14 0v9zM970 234v-9a7 7 0 0 1 14 0v9zM989 234v-9a7 7 0 0 1 14 0v9z" fill="#051119"/>
+  <path d="M908 234v-20h100v20z" class="scStone"/>
+  <path d="M913 234v-9a7 7 0 0 1 14 0v9zM932 234v-9a7 7 0 0 1 14 0v9zM951 234v-9a7 7 0 0 1 14 0v9zM970 234v-9a7 7 0 0 1 14 0v9zM989 234v-9a7 7 0 0 1 14 0v9z" class="scArch"/>
   <!-- Tekne -->
   <g>
-    <path d="M1056 238h46l-7 8h-32z" fill="#071925"/>
-    <path d="M1078 238v-26" stroke="#071925" stroke-width="2"/>
+    <path d="M1056 238h46l-7 8h-32z" class="scBoat"/>
+    <path d="M1078 238v-26" class="scMast" stroke-width="2"/>
     <path d="M1080 214l16 22h-16z" fill="#fff" fill-opacity=".8"/>
     <path d="M1076 220l-12 16h12z" fill="#fff" fill-opacity=".55"/>
   </g>
