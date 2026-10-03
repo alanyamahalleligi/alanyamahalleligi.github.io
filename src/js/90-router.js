@@ -57,6 +57,7 @@ function navigate(path,replace){
   closeSearch();
   if(path!==location.pathname){replace?history.replaceState(null,'',path):history.pushState(null,'',path);}
   closeLightbox(); render(); window.scrollTo(0,0);
+  const v=$('#view');v.classList.remove('anim');void v.offsetWidth;v.classList.add('anim');
   $('#view').focus({preventScroll:true});
 }
 window.addEventListener('popstate',render);

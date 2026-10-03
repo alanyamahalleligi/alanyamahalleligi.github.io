@@ -673,6 +673,115 @@ dialog#searchBox{max-width:min(620px,calc(100vw - 24px));margin-top:8vh;padding:
   .days{grid-template-columns:repeat(2,1fr)!important}
   .daycard.past{opacity:1}
 }
+/* ===== v6: gece maçı görünümü, derinlik ve renk ===== */
+:root{--night:#0a1a26;--night-2:#123149;--on-night:#eaf6f4;--on-night-dim:#9fbcc4;--glow:#5fd0d6;
+  --shadow:0 1px 2px rgba(13,35,48,.06),0 10px 26px -14px rgba(13,35,48,.22);--shadow-lg:0 2px 6px rgba(13,35,48,.1),0 22px 44px -20px rgba(13,35,48,.4);--r:14px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.75);--shadow-lg:0 2px 6px rgba(0,0,0,.5),0 24px 48px -20px rgba(0,0,0,.9)}}
+:root[data-theme="dark"]{--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.75);--shadow-lg:0 2px 6px rgba(0,0,0,.5),0 24px 48px -20px rgba(0,0,0,.9)}
+body{background:var(--bg) radial-gradient(1100px 520px at 85% -120px,color-mix(in srgb,var(--sea) 16%,transparent),transparent 70%) no-repeat}
+
+/* Üst bar */
+.top{background:color-mix(in srgb,var(--night) 94%,transparent);border-bottom:3px solid var(--accent);box-shadow:0 8px 24px -16px rgba(0,0,0,.6)}
+.brand,.brand b{color:var(--on-night)}
+.brand small{color:var(--on-night-dim)}
+nav.links a{color:#cfe3e6}
+nav.links a:hover{background:rgba(255,255,255,.1)}
+nav.links a[aria-current]{background:var(--led);color:#1b1206}
+.iconBtn,.adminBtn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:var(--on-night)}
+.iconBtn:hover,.adminBtn:hover{background:rgba(255,255,255,.16)}
+@media (max-width:760px){nav.links a{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}}
+
+/* Ana sayfa girişi */
+.hero{position:relative;color:var(--on-night);padding-top:40px;
+  background:
+    radial-gradient(520px 300px at 12% -40px,rgba(255,236,170,.22),transparent 70%),
+    radial-gradient(520px 300px at 88% -40px,rgba(255,236,170,.2),transparent 70%),
+    radial-gradient(900px 500px at 50% 120%,rgba(56,188,196,.35),transparent 70%),
+    linear-gradient(165deg,var(--night) 0%,var(--night-2) 60%,#0d4a58 130%)}
+.hero .eyebrow{color:var(--glow)}
+.hero h1{color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.35)}
+.hero h1 .n{color:#ff7a55}
+.hero h1 .l2{-webkit-text-stroke:2px var(--on-night);color:transparent;text-shadow:none}
+.hero .season{color:var(--led)}
+.hero .lede{color:#bcd2d8}
+.hero .fact b{color:#fff}
+.hero .fact span,.hero .live-note{color:var(--on-night-dim)}
+.hero .live{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:var(--on-night);backdrop-filter:blur(6px)}
+.hero .board{background:rgba(4,12,18,.6);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px);box-shadow:0 30px 60px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08)}
+.skyline .hill{fill:rgba(255,255,255,.07)}
+.skyline .wall{stroke:rgba(255,255,255,.22)}
+.skyline .wave{fill:var(--bg);opacity:1}
+.hero+.block{border-top:0}
+
+/* Sayfa başlık şeridi */
+.page-head,.teamHero,.playerHero{position:relative;overflow:hidden;color:var(--on-night);border-radius:20px;padding:24px 26px;
+  background:radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.14),transparent 70%),linear-gradient(135deg,var(--night),var(--night-2));box-shadow:var(--shadow-lg)}
+.page-head::after,.teamHero::after,.playerHero::after{content:"";position:absolute;right:-70px;top:50%;width:240px;height:240px;margin-top:-120px;border:2px solid rgba(255,255,255,.08);border-radius:50%;box-shadow:0 0 0 46px rgba(255,255,255,.025);pointer-events:none}
+.page-head>*,.teamHero>*,.playerHero>*{position:relative;z-index:1}
+.page-head .ptitle,.teamHero .ptitle,.playerHero .ptitle{color:#fff}
+.page-head p,.playerHero .muted{color:#bcd2d8}
+.page-head .eyebrow,.teamHero .eyebrow,.playerHero .eyebrow,.teamHero .eyebrow a,.playerHero .eyebrow a{color:var(--glow)}
+.page-head .btn.line,.teamHero .btn.line,.playerHero .btn.line{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:var(--on-night)}
+.teamHero{background:radial-gradient(420px 220px at 100% 0,rgba(255,236,170,.12),transparent 70%),linear-gradient(135deg,var(--night) 25%,color-mix(in srgb,var(--g,var(--night-2)) 60%,var(--night)))}
+.teamHero .tbadge.xl,.playerHero .av.xl{box-shadow:0 0 0 4px rgba(255,255,255,.14),0 16px 30px -14px rgba(0,0,0,.7)}
+.teamHero .actions,.playerHero .actions{margin-top:14px}
+
+/* Kartlar */
+.panel,.gcard,.lcard,.daycard,.tcard,.pcard,.newsItem,.lineup,.tlrow,.gl,.info article,.faq details,.squad,.gate,.spcard{box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--line) 75%,transparent)}
+a.tcard,a.pcard,a.gl,a.newsItem,a.tlrow,a.ko,.gthumb{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+a.tcard:hover,a.pcard:hover,a.gl:hover,a.newsItem:hover,a.tlrow:hover,a.ko:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.gcard{overflow:hidden}
+.gcard header{background:linear-gradient(120deg,var(--g),color-mix(in srgb,var(--g) 62%,#000));color:#fff;border-bottom:0;padding:13px 14px}
+.gcard header .letter{color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.2)}
+.gcard header small{color:rgba(255,255,255,.85)}
+.gcard header .more{color:#fff;background:rgba(255,255,255,.18);padding:4px 9px;border-radius:999px}
+.gcard header .more:hover{background:rgba(255,255,255,.3)}
+table.st tbody tr{transition:background .12s}
+table.st tbody tr:hover{background:var(--surface-2)}
+.daycard{overflow:hidden}
+.daycard header{background:var(--surface-2)}
+.daycard.today header{background:linear-gradient(120deg,var(--accent),color-mix(in srgb,var(--accent) 65%,#000));color:#fff}
+.daycard.today header span,.daycard.today header em{color:#fff}
+.lcard header,.panel>header{background:var(--surface-2);border-radius:var(--r) var(--r) 0 0}
+.lcard li:first-child .c{text-shadow:0 0 18px color-mix(in srgb,var(--accent) 40%,transparent)}
+.lcard.cta{background:linear-gradient(160deg,var(--surface),var(--surface-2))}
+.tile{background:linear-gradient(160deg,var(--surface),var(--surface-2));border:1px solid color-mix(in srgb,var(--line) 75%,transparent);box-shadow:var(--shadow);border-radius:12px;padding:12px 12px 10px}
+.tile b{color:var(--sea);font-size:1.9rem}
+.gl{border-left-width:5px}
+.tbadge{box-shadow:0 0 0 2px color-mix(in srgb,var(--surface) 80%,transparent),0 6px 14px -8px rgba(0,0,0,.5)}
+.tbadge.xs,.tbadge.sm{box-shadow:none}
+.pcard .av.md{box-shadow:0 0 0 3px var(--surface-2)}
+.tcard{border-left:5px solid var(--g)}
+
+/* Başlıklar, düğmeler, sekmeler */
+.subhead::before{content:"";width:6px;height:.95em;border-radius:3px;background:linear-gradient(var(--accent),var(--led));flex:none}
+.btn{transition:transform .15s ease,box-shadow .15s ease,filter .15s ease;box-shadow:0 8px 16px -10px color-mix(in srgb,var(--led) 80%,#000)}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn.line,.btn.ghost,.btn.warn{box-shadow:none}
+.tabs{box-shadow:var(--shadow)}
+.tabs button[aria-pressed="true"],.tabs a[aria-current]{background:linear-gradient(120deg,var(--night),var(--night-2));color:#fff}
+.chips button{box-shadow:var(--shadow)}
+.search{box-shadow:var(--shadow)}
+
+/* Maç sayfası */
+.matchHero{background:radial-gradient(460px 240px at 10% 0,rgba(255,236,170,.16),transparent 70%),radial-gradient(460px 240px at 90% 0,rgba(255,236,170,.16),transparent 70%),linear-gradient(165deg,var(--night),var(--night-2));box-shadow:var(--shadow-lg);padding:26px 20px}
+.matchHero .sc{text-shadow:0 0 34px color-mix(in srgb,var(--led) 55%,transparent)}
+.matchHero .tbadge.lg{box-shadow:0 0 0 4px rgba(255,255,255,.14),0 14px 26px -12px rgba(0,0,0,.7)}
+.liveBar{box-shadow:0 14px 30px -14px rgba(215,38,30,.8)}
+
+@media (max-width:420px){.m{grid-template-columns:2.3rem minmax(0,1fr) 2.2rem minmax(0,1fr) 1.4rem;gap:6px;padding:9px 10px;font-size:.82rem}.m .t{font-size:.76rem}.m .gp{width:1.4rem;height:1.4rem;font-size:.82rem}.ev{padding-inline:10px}}
+/* Altbilgi */
+footer{background:var(--night);color:var(--on-night-dim);border-top:3px solid var(--accent);margin-top:20px}
+footer b{color:var(--on-night)}
+footer a,.flinks a{color:var(--glow)}
+
+/* Sayfa geçişi */
+#view.anim>*{animation:pageIn .28s ease both}
+@keyframes pageIn{from{opacity:.4;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media print{.page-head,.teamHero,.playerHero,.matchHero{background:none!important;color:#000!important;box-shadow:none;padding:0}
+  .page-head .ptitle,.teamHero .ptitle,.playerHero .ptitle{color:#000}.page-head::after,.teamHero::after,.playerHero::after{display:none}
+  .gcard header{background:none!important;color:#000}.gcard header .letter{color:#000}#view>*{animation:none}}
 </style>
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <script src="/firebase-config.js"></script>
@@ -2532,6 +2641,7 @@ function navigate(path,replace){
   closeSearch();
   if(path!==location.pathname){replace?history.replaceState(null,'',path):history.pushState(null,'',path);}
   closeLightbox(); render(); window.scrollTo(0,0);
+  const v=$('#view');v.classList.remove('anim');void v.offsetWidth;v.classList.add('anim');
   $('#view').focus({preventScroll:true});
 }
 window.addEventListener('popstate',render);
