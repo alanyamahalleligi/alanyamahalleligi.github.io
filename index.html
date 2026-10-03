@@ -650,6 +650,18 @@ a.newsItem:hover{border-color:var(--sea)}
 .tile span{overflow-wrap:anywhere}
 .m .h,.m .a,.res .h,.res .a,.board li .h,.board li .a{overflow-wrap:break-word;word-break:normal;hyphens:auto}
 @media (min-width:761px){nav.links a{padding:7px 9px;font-size:.84rem}}
+/* Arama */
+dialog#searchBox{max-width:min(620px,calc(100vw - 24px));margin-top:8vh;padding:16px 18px 18px}
+.sbox{display:flex;gap:10px;align-items:end}
+.sbox .fld{flex:1}
+.sbox input{font-size:1.05rem;padding:10px 12px}
+#sres{max-height:62vh;overflow:auto;margin-top:10px}
+.sres{display:grid;gap:2px}
+.sres a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:inherit;text-decoration:none;font-weight:600}
+.sres a:hover,.sres a:focus-visible{background:var(--surface-2)}
+.sres small{display:block;color:var(--muted);font-weight:500;font-size:.78rem}
+.sres .av{width:30px;height:30px;font-size:.72rem}
+@media (max-width:420px){.top .wrap{gap:8px}.iconBtn{width:32px;height:32px}}
 /* Yazdırma */
 @media print{
   .top,footer,.no-print,.skyline,.liveBar,.toast,#yonetim,.crumbs{display:none!important}
@@ -682,6 +694,7 @@ a.newsItem:hover{border-color:var(--sea)}
     <nav class="links" aria-label="Sayfalar">
       <a href="/fikstur">Fikstür</a><a href="/gruplar">Gruplar</a><a href="/istatistik">İstatistik</a><a href="/takimlar">Takımlar</a><a href="/final">Final</a><a href="/tahmin">Tahmin</a><a href="/haftanin">Haftanın</a><a href="/galeri">Galeri</a><a href="/disiplin">Disiplin</a><a href="/duyurular">Duyurular</a><a href="/bilgi">Bilgi</a>
     </nav>
+    <button type="button" class="iconBtn" id="searchBtn" aria-label="Sitede ara" title="Ara"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
     <button type="button" class="iconBtn" id="themeBtn" aria-label="Tema: sistem" title="Tema"></button>
     <button type="button" class="adminBtn" id="adminBtn"><i></i><span id="adminBtnLbl">Giriş</span><em class="cnt" id="reqCount" hidden></em></button>
   </div>
@@ -938,6 +951,7 @@ a.newsItem:hover{border-color:var(--sea)}
 </footer>
 
 <dialog class="modal lightbox" id="lightbox" aria-label="Fotoğraf"></dialog>
+<dialog class="modal" id="searchBox" aria-label="Sitede ara"></dialog>
 </div>
 
 <script>
@@ -1849,6 +1863,28 @@ async function notify(head,body,id){
   try{const n=new Notification(head,opt);n.onclick=()=>{window.focus();navigate(`/mac/${id}`);};}catch(e){}
 }
 
+/* ===================== Site içi arama ===================== */
+function searchResults(q){
+  q=low(q.trim()); if(q.length<2) return '<p class="hint">En az 2 harf yazın: mahalle, oyuncu, maç ya da duyuru.</p>';
+  const teams=Object.keys(TEAM_G).filter(t=>low(t).includes(q)).slice(0,6);
+  const players=Object.entries(DATA.players).filter(([,p])=>low(p.name).includes(q)).slice(0,8);
+  const matches=everyMatch().filter(m=>m.h&&m.a&&(low(m.h).includes(q)||low(m.a).includes(q))).sort(byTime).slice(0,8);
+  const news=Object.entries(DATA.news).filter(([,n])=>low(n.title).includes(q)||low(n.body||'').includes(q)).slice(0,4);
+  if(!teams.length&&!players.length&&!matches.length&&!news.length) return `<p class="hint">"${esc(q)}" için sonuç bulunamadı. Yazımı kontrol edin ya da daha kısa bir kelime deneyin.</p>`;
+  const sec=(title,items)=>items.length?`<h3 class="minihead">${title}</h3><div class="sres">${items.join('')}</div>`:'';
+  return sec('Takımlar',teams.map(t=>`<a href="/takim/${slug(t)}">${teamBadge(t,'sm')}<span>${esc(t)}<small>${TEAM_G[t]} Grubu</small></span></a>`))
+    +sec('Oyuncular',players.map(([id,p])=>`<a href="/oyuncu/${id}">${avatar(id,p.name)}<span>${esc(p.name)}<small>${esc(p.team)}${p.no?' · #'+p.no:''}${p.pos?' · '+esc(p.pos):''}</small></span></a>`))
+    +sec('Maçlar',matches.map(m=>{const s=shown(m.id);return `<a href="/mac/${m.id}"><span>${esc(m.h)} ${s?s.join('–'):'–'} ${esc(m.a)}<small>${fmt(m.d).dm} ${m.t||''} · ${mLabel(m)}</small></span></a>`}))
+    +sec('Duyurular',news.map(([id,n])=>`<a href="/duyuru/${id}"><span>${esc(n.title)}<small>${fmtDate(n.date)}</small></span></a>`));
+}
+function openSearch(){
+  const d=$('#searchBox'); if(d.open) return;
+  d.innerHTML=`<div class="sbox"><label class="fld"><span>Sitede ara</span><input id="sq" type="search" placeholder="Mahalle, oyuncu ya da maç…" autocomplete="off"></label><button type="button" class="btn sm line" data-sclose>Kapat</button></div><div id="sres">${searchResults('')}</div>`;
+  try{d.showModal()}catch(e){d.setAttribute('open','')}
+  $('#sq').focus();
+}
+function closeSearch(){const d=$('#searchBox');if(d&&d.open)d.close();}
+
 /* ---------- Panel (yönetici ve takım hesabı) ---------- */
 const draft={id:null,ev:[]};
 let ROLE_KNOWN=false, editPlayer=null, editNews=null, panelReady=false, pendingPhoto=undefined, pendingLogo=null;
@@ -2493,6 +2529,7 @@ function scheduleRender(){
 }
 document.addEventListener('focusout',()=>{if(renderPending)setTimeout(()=>{const a=document.activeElement;if(!(a&&$('#view').contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))){renderPending=false;render();}},150);});
 function navigate(path,replace){
+  closeSearch();
   if(path!==location.pathname){replace?history.replaceState(null,'',path):history.pushState(null,'',path);}
   closeLightbox(); render(); window.scrollTo(0,0);
   $('#view').focus({preventScroll:true});
@@ -2533,12 +2570,20 @@ document.addEventListener('click',async e=>{
   if(el=q('[data-galretry]')){GALLERY=null;render();return;}
   if(el=q('[data-ssort]')){const k=el.dataset.ssort;statSort.dir=statSort.k===k?-statSort.dir:(k==='t'?1:-1);statSort.k=k;render();return;}
   if(el=q('[data-close]')){closeLightbox();return;}
+  if(el=q('[data-sclose]')){closeSearch();return;}
 });
 $('#lightbox').addEventListener('click',e=>{if(e.target===e.currentTarget)closeLightbox();});
 document.addEventListener('input',e=>{
+  if(e.target.id==='sq'){$('#sres').innerHTML=searchResults(e.target.value);return;}
   if(e.target.id==='q'){fx.q=low(e.target.value.trim());$('#fixture').innerHTML=fixtureList();}
 });
 $('#adminBtn').addEventListener('click',openAdmin);
+$('#searchBtn').addEventListener('click',openSearch);
+$('#searchBox').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSearch();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&!/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement?.tagName||'')){e.preventDefault();openSearch();}
+  if(e.key==='Enter'&&e.target.id==='sq'){const a=$('#sres a');if(a){e.preventDefault();navigate(a.getAttribute('href'));}}
+});
 
 /* ===================== Tema ===================== */
 const THEMES=['system','light','dark'], THEME_LBL={system:'Tema: sistem',light:'Tema: açık',dark:'Tema: koyu'};
